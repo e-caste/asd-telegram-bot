@@ -55,9 +55,8 @@ def asd_counter(bot, update):
     this function increases the asd_count and writes it to disk
     when a new message on the filtered group contains at least 1 "asd"
     """
-
     if update.message.chat.type == chat.Chat.GROUP and \
-            (update.message.chat.title == "WEEE Chat" or update.message.chat.title == "Test"):
+            update.message.chat.title == "WEEE Chat":
         print(update.message.chat.title + " " + str(update.message.chat_id))
         asd_increment = update.message.text.lower().count("asd")
         if asd_increment > 0:
@@ -86,10 +85,10 @@ def notify_weekly(bot):
     """
     try:
         asd_count, date, week_start = get_current_count_content()
-        time_to_sleep = (week_start + timedelta(days=7) - datetime.now()).seconds
-        # print(time_to_sleep)
-        # time.sleep(time_to_sleep)
-        time.sleep(5)
+        time_to_sleep = int((week_start + timedelta(days=7) - datetime.now()).total_seconds())
+        print(time_to_sleep)
+        time.sleep(time_to_sleep)
+        # time.sleep(5)
         # UPDATE DATABASE - append weekly result
         db = open("past_asd.txt", 'a')
         db.write("\n" + str(asd_count)
@@ -124,7 +123,7 @@ def notify_weekly(bot):
         else: # past_week_asd_count < _week_before_that_asd_count:
             reply = random.choice(isless)
             end = ", ossia " + str(diff) + " asd in meno rispetto alla scorsa settimana. D'oh!"
-        bot.send_message(chat_id=test_group_chat_id, text=reply+stats+end) # TODO: change group chat id
+        bot.send_message(chat_id=weee_chat_chat_id, text=reply+stats+end)
 
     except Exception as e:
         bot.send_message(chat_id=castes_chat_id, text="asd_counter_bot si è sminchiato perché:\n" + str(e))
