@@ -4,9 +4,14 @@
 """
 
 import logging
+from telegram import bot, chat
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
-from robbamia import token, castes_chat_id
+from robbamia import *
 from datetime import datetime, timedelta
+import time
+import threading
+from motivational_replies import *
+import random
 
 # Enable logging
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
@@ -18,71 +23,112 @@ logger = logging.getLogger(__name__)
 # test = "asd ciao come va ASD testaSd"
 # print(test.lower().count("asd"))
 # exit(33)
+
+# test_date = datetime(year=2019, month=4, day=29, hour=9)
+# print(test_date + timedelta(days=7))
+# exit(33)
 """END TEST"""
+
+def get_current_count_content():
+    f = open("current_count.txt", 'r')  # 'rw' is forbidden
+    # 0 2019040809
+    content = f.read().split(" ")
+    f.close()
+    asd_count = int(content[0])
+    date = str(content[1])
+    week_start = datetime(year=int(date[0:4]),
+                          month=int(date[4:6]),
+                          day=int(date[6:8]),
+                          hour=int(date[8:10]))
+    return asd_count, date, week_start
 
 # Define a few command handlers. These usually take the two arguments bot and
 # update. Error handlers also receive the raised TelegramError object in error.
 def start(bot, update):
     """Send a message when the command /start is issued."""
     bot.send_message(chat_id=update.message.chat_id, text='Hi ' + update.message.from_user.first_name +
-                                                          ', welcome to asd bot!')
+                                                          ', welcome to asd bot! I only count asds from a certain'
+                                                          " group chat, so I'm pretty useless to you now :D")
 
 def asd_counter(bot, update):
     """
-    if date of first msg has timedelta > 24h with respect to datetime.now() send data to past_asd.txt
-    else increase count
+    this function increases the asd_count and writes it to disk
+    when a new message on the filtered group contains at least 1 "asd"
     """
 
-    if update.message.chat.type == 'group' and update.message.chat.title == "WEEE Open":
+    if update.message.chat.type == chat.Chat.GROUP and \
+            (update.message.chat.title == "WEEE Chat" or update.message.chat.title == "Test"):
+        print(update.message.chat.title + " " + str(update.message.chat_id))
         asd_increment = update.message.text.lower().count("asd")
         if asd_increment > 0:
             try:
-                f = open("current_count.txt", 'r') # 'rw' is forbidden
-                # 0 2019040809
-                content = f.read().split(" ")
-                asd_count = int(content[0])
-                date = str(content[1])
+                asd_count, date, week_start = get_current_count_content()
+                print(asd_count, date)
+                f = open("current_count.txt", 'w')
+                asd_count += asd_increment
+                f.write(str(asd_count)
+                        + " "
+                        + date)
                 f.close()
-                week_start = datetime(year=int(date[0:4]),
-                                      month=int(date[4:6]),
-                                      day=int(date[6:8]),
-                                      hour=int(date[8:10]))
-                if (week_start - datetime.now()).seconds > 604800: # seconds in 1 week
-                    db = open("past_asd.txt", 'a') # append
-                    db.write("# "
-                             + str(asd_count)
-                             + "\t"
-                             + str(week_start)
-                             + " - "
-                             + str(week_start + timedelta(days=7)))
-                    db.close()
-                    asd_count = asd_increment
-                    week_start += timedelta(days=7)
-                    f.write(str(asd_count)
-                            + " "
-                            + str(week_start.year).zfill(4)
-                            + str(week_start.month).zfill(2)
-                            + str(week_start.day).zfill(2)
-                            + str(week_start.hour).zfill(2))
-                else:
-                    f = open("current_count.txt", 'w')
-                    asd_count += asd_increment
-                    f.write(str(asd_count)
-                            + " "
-                            + date)
-                    f.close()
-                    print("asd counter increased to " + str(asd_count))
+                print("asd counter increased to " + str(asd_count))
 
             except Exception as e:
-                bot.send_message(chat_id=castes_chat_id, text="asd_count_bot si è sminchiato perché:\n" + str(e))
+                bot.send_message(chat_id=castes_chat_id, text="asd_counter_bot si è sminchiato perché:\n" + str(e))
                 print(e)
 
 def notify_weekly(bot):
-    pass
-    # TODO: add text to WEEE Chat
-    # use asyncio.sleep() with the number of seconds until the date found in current_count.txt
-    # + timedelta(days=7) - datetime.now()
-    # then notify group with a random phrase based on percentage increase or decrease
+    """
+    this function is called at the launch of the script in the main function as a separate thread
+    this function is NOT to be called by a Message or Command Handler
+    we use time.sleep() with the number of seconds until the date found in current_count.txt
+    + timedelta(days=7) - datetime.now()
+    then notify group with a random phrase based on asd increase or decrease
+    """
+    try:
+        asd_count, date, week_start = get_current_count_content()
+        time_to_sleep = (week_start + timedelta(days=7) - datetime.now()).seconds
+        # print(time_to_sleep)
+        # time.sleep(time_to_sleep)
+        time.sleep(5)
+        # UPDATE DATABASE - append weekly result
+        db = open("past_asd.txt", 'a')
+        db.write("\n" + str(asd_count)
+                 + "\t"
+                 + str(week_start)
+                 + " - "
+                 + str(week_start + timedelta(days=7)))
+        db.close()
+        week_start += timedelta(days=7)
+        # UPDATE CURRENT COUNTER - overwrite and reset to 0
+        f = open("current_count.txt", 'w')
+        f.write(str(0)
+                + " "
+                + str(week_start.year).zfill(4)
+                + str(week_start.month).zfill(2)
+                + str(week_start.day).zfill(2)
+                + str(week_start.hour).zfill(2))
+        f.close()
+        # READ 2 LATEST RESULTS FROM DATABASE
+        db = open("past_asd.txt", 'r')
+        past_week_asd_count = asd_count
+        _week_before_that_asd_count = int(db.readlines()[-2].split("\t")[0])
+        db.close()
+        stats = "\n\nQuesta settimana abbiamo totalizzato " + str(past_week_asd_count) + " asd"
+        diff = str(abs(past_week_asd_count - _week_before_that_asd_count))
+        if past_week_asd_count == _week_before_that_asd_count:
+            reply = random.choice(equals)
+            end = ", proprio come la scorsa settimana!"
+        elif past_week_asd_count > _week_before_that_asd_count:
+            reply = random.choice(ismore)
+            end = ", ossia " + str(diff) + " asd in più rispetto alla scorsa settimana!"
+        else: # past_week_asd_count < _week_before_that_asd_count:
+            reply = random.choice(isless)
+            end = ", ossia " + str(diff) + " asd in meno rispetto alla scorsa settimana. D'oh!"
+        bot.send_message(chat_id=test_group_chat_id, text=reply+stats+end) # TODO: change group chat id
+
+    except Exception as e:
+        bot.send_message(chat_id=castes_chat_id, text="asd_counter_bot si è sminchiato perché:\n" + str(e))
+        print(e)
 
 def help(bot, update):
     """Send a message when the command /help is issued."""
@@ -114,11 +160,16 @@ def main():
 
     # Start the Bot
     updater.start_polling()
+    t1 = threading.Thread(target=updater.idle)
+    t2 = threading.Thread(target=notify_weekly(bot.Bot(token)))
+
+    t1.start()
+    t2.start()
 
     # Run the bot until you press Ctrl-C or the process receives SIGINT,
     # SIGTERM or SIGABRT. This should be used most of the time, since
     # start_polling() is non-blocking and will stop the bot gracefully.
-    updater.idle()
+    # updater.idle()
 
 
 if __name__ == '__main__':

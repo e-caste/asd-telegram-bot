@@ -1,0 +1,2 @@
+start - ^ leggi
+help - ^ madonna c'è scritto
