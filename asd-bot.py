@@ -27,6 +27,11 @@ logger = logging.getLogger(__name__)
 # test_date = datetime(year=2019, month=4, day=29, hour=9)
 # print(test_date + timedelta(days=7))
 # exit(33)
+
+# db = open("past_asd.txt", 'r')
+# print(db.readlines()[-2].split("\t")[0])
+# db.close()
+# exit(33)
 """END TEST"""
 
 def get_current_count_content():
@@ -83,55 +88,54 @@ def notify_weekly(bot):
     + timedelta(days=7) - datetime.now()
     then notify group with a random phrase based on asd increase or decrease
     """
-    try:
-        asd_count, date, week_start = get_current_count_content()
-        time_to_sleep = int((week_start + timedelta(days=7) - datetime.now()).total_seconds())
-        print(time_to_sleep)
-        time.sleep(time_to_sleep)
-        # time.sleep(5)
-        # UPDATE DATABASE - append weekly result
-        db = open("past_asd.txt", 'a')
-        db.write("\n" + str(asd_count)
-                 + "\t"
-                 + str(week_start)
-                 + " - "
-                 + str(week_start + timedelta(days=7)))
-        db.close()
-        week_start += timedelta(days=7)
-        # UPDATE CURRENT COUNTER - overwrite and reset to 0
-        f = open("current_count.txt", 'w')
-        f.write(str(0)
-                + " "
-                + str(week_start.year).zfill(4)
-                + str(week_start.month).zfill(2)
-                + str(week_start.day).zfill(2)
-                + str(week_start.hour).zfill(2))
-        f.close()
-        # READ 2 LATEST RESULTS FROM DATABASE
-        db = open("past_asd.txt", 'r')
-        past_week_asd_count = asd_count
-        _week_before_that_asd_count = int(db.readlines()[-2].split("\t")[0])
-        db.close()
-        stats = "\n\nQuesta settimana abbiamo totalizzato " + str(past_week_asd_count) + " asd"
-        diff = str(abs(past_week_asd_count - _week_before_that_asd_count))
-        if past_week_asd_count == _week_before_that_asd_count:
-            reply = random.choice(equals)
-            end = ", proprio come la scorsa settimana!"
-        elif past_week_asd_count > _week_before_that_asd_count:
-            reply = random.choice(ismore)
-            end = ", ossia " + str(diff) + " asd in più rispetto alla scorsa settimana!"
-        else: # past_week_asd_count < _week_before_that_asd_count:
-            reply = random.choice(isless)
-            end = ", ossia " + str(diff) + " asd in meno rispetto alla scorsa settimana. D'oh!"
-        bot.send_message(chat_id=weee_chat_chat_id, text=reply+stats+end)
+    while True:
+        try:
+            asd_count, date, week_start = get_current_count_content()
+            time_to_sleep = int((week_start + timedelta(days=7) - datetime.now()).total_seconds())
+            print(time_to_sleep)
+            time.sleep(time_to_sleep)
+            # time.sleep(5)
+            # UPDATE asd_count VARIABLE AFTER SLEEPING
+            asd_count, date, week_start = get_current_count_content()
+            # UPDATE DATABASE - append weekly result
+            db = open("past_asd.txt", 'a')
+            db.write("\n" + str(asd_count)
+                     + "\t"
+                     + str(week_start)
+                     + " - "
+                     + str(week_start + timedelta(days=7)))
+            db.close()
+            week_start += timedelta(days=7)
+            # UPDATE CURRENT COUNTER - overwrite and reset to 0
+            f = open("current_count.txt", 'w')
+            f.write(str(0)
+                    + " "
+                    + str(week_start.year).zfill(4)
+                    + str(week_start.month).zfill(2)
+                    + str(week_start.day).zfill(2)
+                    + str(week_start.hour).zfill(2))
+            f.close()
+            # READ 2 LATEST RESULTS FROM DATABASE
+            db = open("past_asd.txt", 'r')
+            past_week_asd_count = asd_count
+            _week_before_that_asd_count = int(db.readlines()[-2].split("\t")[0])
+            db.close()
+            stats = "\n\nQuesta settimana abbiamo totalizzato " + str(past_week_asd_count) + " asd"
+            diff = str(abs(past_week_asd_count - _week_before_that_asd_count))
+            if past_week_asd_count == _week_before_that_asd_count:
+                reply = random.choice(equals)
+                end = ", proprio come la scorsa settimana!"
+            elif past_week_asd_count > _week_before_that_asd_count:
+                reply = random.choice(ismore)
+                end = ", ossia " + str(diff) + " asd in più rispetto alla scorsa settimana!"
+            else: # past_week_asd_count < _week_before_that_asd_count:
+                reply = random.choice(isless)
+                end = ", ossia " + str(diff) + " asd in meno rispetto alla scorsa settimana. D'oh!"
+            bot.send_message(chat_id=weee_chat_chat_id, text=reply+stats+end)
 
-        # RESTART THIS METHOD WHEN FINISHED
-        # TODO: find way to prevent hitting recursion limit
-        notify_weekly(bot)
-
-    except Exception as e:
-        bot.send_message(chat_id=castes_chat_id, text="asd_counter_bot si è sminchiato perché:\n" + str(e))
-        print(e)
+        except Exception as e:
+            bot.send_message(chat_id=castes_chat_id, text="asd_counter_bot si è sminchiato perché:\n" + str(e))
+            print(e)
 
 def help(bot, update):
     """Send a message when the command /help is issued."""
