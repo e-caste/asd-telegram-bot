@@ -126,6 +126,7 @@ def notify_weekly(bot):
         bot.send_message(chat_id=weee_chat_chat_id, text=reply+stats+end)
 
         # RESTART THIS METHOD WHEN FINISHED
+        # TODO: find way to prevent hitting recursion limit
         notify_weekly(bot)
 
     except Exception as e:
