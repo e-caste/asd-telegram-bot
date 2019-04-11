@@ -4,7 +4,7 @@
 """
 
 import logging
-from telegram.ext import Updater, CommandHandler, MessageHandler
+from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
 from robbamia import token, castes_chat_id
 from datetime import datetime, timedelta
 
@@ -13,6 +13,12 @@ logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s
                     level=logging.INFO)
 
 logger = logging.getLogger(__name__)
+
+"""START TEST"""
+# test = "asd ciao come va ASD testaSd"
+# print(test.lower().count("asd"))
+# exit(33)
+"""END TEST"""
 
 # Define a few command handlers. These usually take the two arguments bot and
 # update. Error handlers also receive the raised TelegramError object in error.
@@ -26,44 +32,58 @@ def asd_counter(bot, update):
     if date of first msg has timedelta > 24h with respect to datetime.now() send data to past_asd.txt
     else increase count
     """
-    if "asd" in update.message.text.lower():
+
+    # TODO: limit usage to only WEEE Chat telegram group
+
+    asd_increment = update.message.text.lower().count("asd")
+    if asd_increment > 0:
         try:
-            f = open("count.txt", 'rw')
-            asd_count = int(f.read().split(" ")[0])
+            f = open("current_count.txt", 'r') # 'rw' is forbidden
             # 0 2019040809
-            date = f.read().split(" ")[1]
-            week_start = datetime(year=int(date[0:3]),
-                                  month=int(date[4:5]),
-                                  day=int(date[6:7]),
-                                  hour=int(date[8:9]))
+            content = f.read().split(" ")
+            asd_count = int(content[0])
+            date = str(content[1])
+            f.close()
+            week_start = datetime(year=int(date[0:4]),
+                                  month=int(date[4:6]),
+                                  day=int(date[6:8]),
+                                  hour=int(date[8:10]))
             if (week_start - datetime.now()).seconds > 604800: # seconds in 1 week
-                db = open("past_asd.txt", 'w')
-                db.write(str(asd_count)
+                db = open("past_asd.txt", 'a') # append
+                db.write("# "
+                         + str(asd_count)
+                         + "\t"
                          + str(week_start)
                          + " - "
-                         + str(week_start + timedelta(days=7))) # TODO: append
+                         + str(week_start + timedelta(days=7)))
                 db.close()
-                asd_count = 1
+                asd_count = asd_increment
                 week_start += timedelta(days=7)
-                f.write(str(asd_count) + " "    # TODO: overwrite
-                        + str(week_start.year)
-                        + str(week_start.month)
-                        + str(week_start.day)
-                        + str(week_start.hour))
-            else:
-                asd_count += 1
                 f.write(str(asd_count)
                         + " "
-                        + date) # TODO: overwrite
-
-            f.close()
+                        + str(week_start.year).zfill(4)
+                        + str(week_start.month).zfill(2)
+                        + str(week_start.day).zfill(2)
+                        + str(week_start.hour).zfill(2))
+            else:
+                f = open("current_count.txt", 'w')
+                asd_count += asd_increment
+                f.write(str(asd_count)
+                        + " "
+                        + date)
+                f.close()
+                print("asd counter increased to " + str(asd_count))
 
         except Exception as e:
-            bot.send_message(chat_id=castes_chat_id, text="asd_count_bot si è sminchiato\n" + str(e))
+            bot.send_message(chat_id=castes_chat_id, text="asd_count_bot si è sminchiato perché:\n" + str(e))
+            print(e)
 
 def notify_weekly(bot):
     pass
     # TODO: add text to WEEE Chat
+    # use asyncio.sleep() with the number of seconds until the date found in current_count.txt
+    # + timedelta(days=7) - datetime.now()
+    # then notify group with a random phrase based on percentage increase or decrease
 
 def help(bot, update):
     """Send a message when the command /help is issued."""
@@ -87,7 +107,8 @@ def main():
     # on different commands - answer in Telegram
     dp.add_handler(CommandHandler("start", start))
     dp.add_handler(CommandHandler("help", help))
-    dp.add_handler(MessageHandler(asd_counter))
+    # for every message
+    dp.add_handler(MessageHandler(Filters.text, asd_counter))
 
     # log all errors
     dp.add_error_handler(error)
