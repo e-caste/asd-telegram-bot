@@ -55,7 +55,7 @@ def asd_counter(bot, update):
     this function increases the asd_count and writes it to disk
     when a new message on the filtered group contains at least 1 "asd"
     """
-    if update.message.chat.type == chat.Chat.GROUP and \
+    if update.message.chat.type == chat.Chat.SUPERGROUP and \
             update.message.chat.title == "WEEE Chat":
         print(update.message.chat.title + " " + str(update.message.chat_id))
         asd_increment = update.message.text.lower().count("asd")
@@ -124,6 +124,9 @@ def notify_weekly(bot):
             reply = random.choice(isless)
             end = ", ossia " + str(diff) + " asd in meno rispetto alla scorsa settimana. D'oh!"
         bot.send_message(chat_id=weee_chat_chat_id, text=reply+stats+end)
+
+        # RESTART THIS METHOD WHEN FINISHED
+        notify_weekly(bot)
 
     except Exception as e:
         bot.send_message(chat_id=castes_chat_id, text="asd_counter_bot si è sminchiato perché:\n" + str(e))
