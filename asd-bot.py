@@ -3,8 +3,6 @@
     - cit. Anonimo il 6/9/69 d.C. alle 4.20pm
 """
 
-# TODO: implement command handler for /record - number has to be saved to a separate file
-
 import logging
 from telegram import bot, chat
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
@@ -61,6 +59,16 @@ def start(bot, update):
     bot.send_message(chat_id=update.message.chat_id, text='Hi ' + update.message.from_user.first_name +
                                                           ', welcome to asd bot! I only count asds from a certain'
                                                           " group chat, so I'm pretty useless to you now :D")
+
+def print_record(bot, update):
+    record = -1
+    with open("past_asd.txt", 'r') as db:
+        for line in db.readlines():
+            tmp = int(line.split("\t")[0])
+            if tmp > record:
+                record = tmp
+    bot.send_message(chat_id=update.message.chat_id, text="Il nostro record attuale di asd settimanali è di "
+                                                            + str(record) + " asd. Asdate di più per batterlo!")
 
 def asd_counter(bot, update):
     """
@@ -163,6 +171,7 @@ def main():
     # on different commands - answer in Telegram
     dp.add_handler(CommandHandler("start", start))
     dp.add_handler(CommandHandler("help", help))
+    dp.add_handler(CommandHandler("record", print_record))
     # for every message
     dp.add_handler(MessageHandler(Filters.text & Filters.group, asd_counter))
 
