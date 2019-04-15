@@ -96,13 +96,13 @@ def notify_weekly(bot):
     """
     while True:
         try:
-            asd_count, date, week_start = get_current_count_content()
+            *_, week_start = get_current_count_content()
             time_to_sleep = int((week_start + timedelta(days=7) - datetime.now()).total_seconds())
             print(time_to_sleep)
             time.sleep(time_to_sleep)
             # time.sleep(5)
             # UPDATE asd_count VARIABLE AFTER SLEEPING
-            asd_count, date, week_start = get_current_count_content()
+            asd_count, *_ = get_current_count_content()
             # UPDATE DATABASE - append weekly result
             with open("past_asd.txt", 'a') as db:
                 db.write("\n" + str(asd_count)
