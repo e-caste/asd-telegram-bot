@@ -3,7 +3,10 @@ ismore = [
     "\t'Ma il cielo è seeeeeempre più asd'",
     "Team WEEE Open: da questa settimana con il 69% di asd in più!",
     "'L'asd scorre potente in lui...'",
-    "'Asda tu che asdo anch'io' e questa settimana abbiamo asdato come non mai"
+    "'Asda tu che asdo anch'io,\n e questa settimana abbiamo asdato come non mai'",
+    "'Asdame, asdame mucho\n"
+    "como si fuera esta noche\n"
+    "lo ultimo asd...'"
 ]
 
 isless = [
