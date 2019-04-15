@@ -3,6 +3,8 @@
     - cit. Anonimo il 6/9/69 d.C. alle 4.20pm
 """
 
+# TODO: implement command handler for /record - number has to be saved to a separate file
+
 import logging
 from telegram import bot, chat
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
