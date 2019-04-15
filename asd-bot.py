@@ -34,13 +34,18 @@ logger = logging.getLogger(__name__)
 # print(db.readlines()[-2].split("\t")[0])
 # db.close()
 # exit(33)
+
+# with open("current_count.txt", 'r') as f:  # 'rw' is forbidden
+#     # 0 2019040809
+#     content = f.read().split(" ")
+# print(content)
+# exit(33)
 """END TEST"""
 
 def get_current_count_content():
-    f = open("current_count.txt", 'r')  # 'rw' is forbidden
-    # 0 2019040809
-    content = f.read().split(" ")
-    f.close()
+    with open("current_count.txt", 'r') as f:  # 'rw' is forbidden
+        # 0 2019040809
+        content = f.read().split(" ")
     asd_count = int(content[0])
     date = str(content[1])
     week_start = datetime(year=int(date[0:4]),
@@ -70,12 +75,11 @@ def asd_counter(bot, update):
             try:
                 asd_count, date, week_start = get_current_count_content()
                 print(asd_count, date)
-                f = open("current_count.txt", 'w')
-                asd_count += asd_increment
-                f.write(str(asd_count)
-                        + " "
-                        + date)
-                f.close()
+                with open("current_count.txt", 'w') as f:
+                    asd_count += asd_increment
+                    f.write(str(asd_count)
+                            + " "
+                            + date)
                 print("asd counter increased to " + str(asd_count))
 
             except Exception as e:
@@ -100,28 +104,26 @@ def notify_weekly(bot):
             # UPDATE asd_count VARIABLE AFTER SLEEPING
             asd_count, date, week_start = get_current_count_content()
             # UPDATE DATABASE - append weekly result
-            db = open("past_asd.txt", 'a')
-            db.write("\n" + str(asd_count)
-                     + "\t"
-                     + str(week_start)
-                     + " - "
-                     + str(week_start + timedelta(days=7)))
-            db.close()
+            with open("past_asd.txt", 'a') as db:
+                db.write("\n" + str(asd_count)
+                         + "\t"
+                         + str(week_start)
+                         + " - "
+                         + str(week_start + timedelta(days=7)))
             week_start += timedelta(days=7)
             # UPDATE CURRENT COUNTER - overwrite and reset to 0
-            f = open("current_count.txt", 'w')
-            f.write(str(0)
-                    + " "
-                    + str(week_start.year).zfill(4)
-                    + str(week_start.month).zfill(2)
-                    + str(week_start.day).zfill(2)
-                    + str(week_start.hour).zfill(2))
-            f.close()
+            with open("current_count.txt", 'w') as f:
+                f.write(str(0)
+                        + " "
+                        + str(week_start.year).zfill(4)
+                        + str(week_start.month).zfill(2)
+                        + str(week_start.day).zfill(2)
+                        + str(week_start.hour).zfill(2))
             # READ 2 LATEST RESULTS FROM DATABASE
-            db = open("past_asd.txt", 'r')
-            past_week_asd_count = asd_count
-            _week_before_that_asd_count = int(db.readlines()[-2].split("\t")[0])
-            db.close()
+            with open("past_asd.txt", 'r') as db:
+                past_week_asd_count = asd_count
+                _week_before_that_asd_count = int(db.readlines()[-2].split("\t")[0])
+
             stats = "\n\nQuesta settimana abbiamo totalizzato " + str(past_week_asd_count) + " asd"
             diff = str(abs(past_week_asd_count - _week_before_that_asd_count))
             if past_week_asd_count == _week_before_that_asd_count:
