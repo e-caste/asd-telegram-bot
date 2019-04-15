@@ -1,7 +1,7 @@
 ismore = [
     "Bravi amici, questa settimana avete aumentato l'asdaggio come si deve!\n"
     "\t'Ma il cielo è seeeeeempre più asd'",
-    "Team WEEE Open: da questa settimana con il 69%% di asd in più!",
+    "Team WEEE Open: da questa settimana con il 69% di asd in più!",
     "'L'asd scorre potente in lui...'",
     "'Asda tu che asdo anch'io' e questa settimana abbiamo asdato come non mai"
 ]
