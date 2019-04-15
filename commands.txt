@@ -1,2 +1,3 @@
-start - ^ leggi
-help - ^ madonna c'è scritto
+start - che pensi che faccia start? (btw non serve sul gruppo)
+record - te mostra er nostro record de asd che madonna proprio zio
+help - vedi te, se non sai che fa l'help...
