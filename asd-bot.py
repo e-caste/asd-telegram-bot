@@ -13,6 +13,13 @@ import threading
 from motivational_replies import *
 import random
 import os
+import matplotlib.pyplot as plt
+from subprocess import Popen
+
+class Graph:
+    def __init__(self, x, y):
+        self.x = x
+        self.y = y
 
 # Enable logging
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
@@ -95,8 +102,27 @@ def print_total(bot, update):
                                                           + str(sum) + " asd.")
 
 def history_graph(bot, update):
-    pass
-    # TODO: implement graph generation + send resulting image
+    x = []
+    y = []
+    with open("past_asd.txt", 'r') as db:
+        for line in db.readlines()[2:]: # skips first 2 lines which only contain a 0
+            # starting date
+            x.append(str(line.split("\t")[1].split(" ")[0]))
+            # number of asds
+            y.append(int(line.split("\t")[0]))
+
+    graph = Graph(x, y)
+    figure = plt.figure()
+    ax = figure.add_subplot(111)
+    ax.axhline(graph.x, graph.y, color="red")
+    ax.set_xlabel("Weeks", {"fontsize": 18})
+    ax.set_ylabel("Number of asds", {"fontsize": 18})
+    if os.path.exists("./history_graph.png"):
+        Popen(["rm", "history_graph.png"])
+    figure.savefig("history_graph.png")
+
+    bot.send_photo(chat_id=update.message.chat_id, photo=open("history_graph.png", 'rb'))
+
 
 def asd_counter(bot, update):
     """
@@ -202,6 +228,7 @@ def main():
     dp.add_handler(CommandHandler("record", print_record))
     dp.add_handler(CommandHandler("average", print_average))
     dp.add_handler(CommandHandler("total", print_total))
+    dp.add_handler(CommandHandler("graph", history_graph))
     # for every message
     dp.add_handler(MessageHandler(Filters.text & Filters.group, asd_counter))
 
@@ -223,5 +250,5 @@ def main():
 
 
 if __name__ == '__main__':
-    os.chdir("/home/pi/castes-scripts/asd-telegram-bot")
+    os.chdir(rasPi_working_directory)
     main()
