@@ -23,27 +23,6 @@ logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s
 
 logger = logging.getLogger(__name__)
 
-"""START TEST"""
-# test = "asd ciao come va ASD testaSd"
-# print(test.lower().count("asd"))
-# exit(33)
-
-# test_date = datetime(year=2019, month=4, day=29, hour=9)
-# print(test_date + timedelta(days=7))
-# exit(33)
-
-# db = open("past_asd.txt", 'r')
-# print(db.readlines()[-2].split("\t")[0])
-# db.close()
-# exit(33)
-
-# with open("current_count.txt", 'r') as f:  # 'rw' is forbidden
-#     # 0 2019040809
-#     content = f.read().split(" ")
-# print(content)
-# exit(33)
-"""END TEST"""
-
 def get_current_count_content():
     with open("current_count.txt", 'r') as f:  # 'rw' is forbidden
         # 0 2019040809
