@@ -70,6 +70,23 @@ def print_record(bot, update):
     bot.send_message(chat_id=update.message.chat_id, text="Il nostro record attuale di asd settimanali è di "
                                                             + str(record) + " asd. Asdate di più per batterlo!")
 
+def print_average(bot, update):
+    sum = 0
+    cnt = 0
+    with open("past_asd.txt", 'r') as db:
+        for line in db.readlines():
+            tmp = int(line.split("\t")[0])
+            if tmp != 0:
+                sum += tmp
+                cnt += 1
+    avg = round(float(sum/cnt), 2)
+    bot.send_message(chat_id=update.message.chat_id, text="La nostra media attuale di asd settimanali è di "
+                                                          + str(avg) + " asd. Asdate di più per alzarla!")
+
+def history_graph(bot, update):
+    pass
+    # TODO: implement graph generation + send resulting image
+
 def asd_counter(bot, update):
     """
     this function increases the asd_count and writes it to disk
@@ -172,6 +189,7 @@ def main():
     dp.add_handler(CommandHandler("start", start))
     dp.add_handler(CommandHandler("help", help))
     dp.add_handler(CommandHandler("record", print_record))
+    dp.add_handler(CommandHandler("average", print_average))
     # for every message
     dp.add_handler(MessageHandler(Filters.text & Filters.group, asd_counter))
 
