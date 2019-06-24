@@ -84,6 +84,16 @@ def print_average(bot, update):
     bot.send_message(chat_id=update.message.chat_id, text="La nostra media attuale di asd settimanali è di "
                                                           + str(avg) + " asd. Asdate di più per alzarla!")
 
+def print_total(bot, update):
+    sum = 0
+    with open("past_asd.txt", 'r') as db:
+        for line in db.readlines():
+            sum += int(line.split("\t")[0])
+    current_count, *_ = get_current_count_content()
+    sum += current_count
+    bot.send_message(chat_id=update.message.chat_id, text="Il nostro totale attuale di asd è di "
+                                                          + str(sum) + " asd.")
+
 def history_graph(bot, update):
     pass
     # TODO: implement graph generation + send resulting image
@@ -191,6 +201,7 @@ def main():
     dp.add_handler(CommandHandler("help", help))
     dp.add_handler(CommandHandler("record", print_record))
     dp.add_handler(CommandHandler("average", print_average))
+    dp.add_handler(CommandHandler("total", print_total))
     # for every message
     dp.add_handler(MessageHandler(Filters.text & Filters.group, asd_counter))
 
