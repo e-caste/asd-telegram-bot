@@ -82,7 +82,7 @@ def history_graph(bot, update):
     with open("past_asd.txt", 'r') as db:
         for line in db.readlines()[2:]:  # skips first 2 lines which only contain a 0
             # starting date
-            x.append(str(line.split("\t")[1].split(" ")[0]))
+            x.append(str(line.split("- ")[1].split(" ")[0]))
             # number of asds
             y.append(int(line.split("\t")[0]))
 
