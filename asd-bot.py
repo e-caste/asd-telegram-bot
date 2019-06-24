@@ -16,10 +16,6 @@ import os
 import matplotlib.pyplot as plt
 from subprocess import Popen
 
-class Graph:
-    def __init__(self, x, y):
-        self.x = x
-        self.y = y
 
 # Enable logging
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
@@ -105,21 +101,19 @@ def history_graph(bot, update):
     x = []
     y = []
     with open("past_asd.txt", 'r') as db:
-        for line in db.readlines()[2:]: # skips first 2 lines which only contain a 0
+        for line in db.readlines()[2:]:  # skips first 2 lines which only contain a 0
             # starting date
             x.append(str(line.split("\t")[1].split(" ")[0]))
             # number of asds
             y.append(int(line.split("\t")[0]))
 
-    graph = Graph(x, y)
-    figure = plt.figure()
-    ax = figure.add_subplot(111)
-    ax.axhline(graph.x, graph.y, color="red")
-    ax.set_xlabel("Weeks", {"fontsize": 18})
-    ax.set_ylabel("Number of asds", {"fontsize": 18})
+    plt.plot(x, y)
+    plt.xticks(x, rotation=90)
+    plt.tick_params(axis='x', which='major', labelsize=8)
+    plt.tight_layout()
     if os.path.exists("./history_graph.png"):
         Popen(["rm", "history_graph.png"])
-    figure.savefig("history_graph.png")
+    plt.savefig("history_graph.png", dpi=300)
 
     bot.send_photo(chat_id=update.message.chat_id, photo=open("history_graph.png", 'rb'))
 
@@ -249,6 +243,6 @@ def main():
     # updater.idle()
 
 
-if __name__ == '__main__':
-    os.chdir(rasPi_working_directory)
-    main()
+# if __name__ == '__main__':
+#     os.chdir(rasPi_working_directory)
+#     main()
