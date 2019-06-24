@@ -12,6 +12,7 @@ import time
 import threading
 from motivational_replies import *
 import random
+import os
 
 # Enable logging
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
@@ -211,4 +212,5 @@ def main():
 
 
 if __name__ == '__main__':
+    os.chdir("/home/pi/castes-scripts/asd-telegram-bot")
     main()
