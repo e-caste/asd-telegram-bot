@@ -76,7 +76,7 @@ def print_total(bot, update):
     bot.send_message(chat_id=update.message.chat_id, text="Il nostro totale attuale di asd è di "
                                                           + str(sum) + " asd.")
 
-def history_graph(bot, update):
+def history_graph(bot, update, send_to_group: bool = False):
     x = []
     y = []
     with open("past_asd.txt", 'r') as db:
@@ -94,7 +94,10 @@ def history_graph(bot, update):
         Popen(["rm", "history_graph.png"])
     plt.savefig("history_graph.png", dpi=300)
 
-    bot.send_photo(chat_id=update.message.chat_id, photo=open("history_graph.png", 'rb'))
+    if send_to_group:
+        bot.send_photo(chat_id=weee_chat_chat_id, photo=open("history_graph.png", 'rb'))
+    else:
+        bot.send_photo(chat_id=update.message.chat_id, photo=open("history_graph.png", 'rb'))
 
 
 def asd_counter(bot, update):
@@ -171,6 +174,7 @@ def notify_weekly(bot):
                 reply = random.choice(isless)
                 end = ", ossia " + str(diff) + " asd in meno rispetto alla scorsa settimana. D'oh!"
             bot.send_message(chat_id=weee_chat_chat_id, text=reply+stats+end)
+            history_graph(bot, None, send_to_group=True)
 
         except Exception as e:
             bot.send_message(chat_id=castes_chat_id, text="asd_counter_bot si è sminchiato perché:\n" + str(e))
