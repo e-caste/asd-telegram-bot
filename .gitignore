@@ -2,3 +2,4 @@ robbamia.py
 .idea/
 __pycache__/
 launch_asd_telegram_bot.sh
+venv/
