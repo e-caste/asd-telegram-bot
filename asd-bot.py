@@ -92,7 +92,7 @@ def history_graph(bot, update, send_to_group: bool = False):
     plt.tight_layout()
     if os.path.exists("./history_graph.png"):
         Popen(["rm", "history_graph.png"])
-    plt.savefig("history_graph.png", dpi=300)
+    plt.savefig("history_graph.png", dpi=300, bbox_inches='tight')
 
     if send_to_group:
         bot.send_photo(chat_id=weee_chat_chat_id, photo=open("history_graph.png", 'rb'))
