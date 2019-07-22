@@ -24,7 +24,7 @@ logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s
 logger = logging.getLogger(__name__)
 
 def get_current_count_content():
-    with open("current_count.txt", 'r') as f:  # 'rw' is forbidden
+    with open(cnt_file, 'r') as f:  # 'rw' is forbidden
         # 0 2019040809
         content = f.read().split(" ")
     asd_count = int(content[0])
@@ -45,7 +45,7 @@ def start(bot, update):
 
 def print_record(bot, update):
     record = -1
-    with open("past_asd.txt", 'r') as db:
+    with open(db_file, 'r') as db:
         for line in db.readlines():
             tmp = int(line.split("\t")[0])
             if tmp > record:
@@ -56,7 +56,7 @@ def print_record(bot, update):
 def print_average(bot, update):
     sum = 0
     cnt = 0
-    with open("past_asd.txt", 'r') as db:
+    with open(db_file, 'r') as db:
         for line in db.readlines():
             tmp = int(line.split("\t")[0])
             if tmp != 0:
@@ -68,7 +68,7 @@ def print_average(bot, update):
 
 def print_total(bot, update):
     sum = 0
-    with open("past_asd.txt", 'r') as db:
+    with open(db_file, 'r') as db:
         for line in db.readlines():
             sum += int(line.split("\t")[0])
     current_count, *_ = get_current_count_content()
@@ -79,7 +79,7 @@ def print_total(bot, update):
 def history_graph(bot, update, send_to_group: bool = False):
     x = []
     y = []
-    with open("past_asd.txt", 'r') as db:
+    with open(db_file, 'r') as db:
         for line in db.readlines()[2:]:  # skips first 2 lines which only contain a 0
             # starting date
             x.append(str(line.split("- ")[1].split(" ")[0]))
@@ -113,7 +113,7 @@ def asd_counter(bot, update):
             try:
                 asd_count, date, week_start = get_current_count_content()
                 print(asd_count, date)
-                with open("current_count.txt", 'w') as f:
+                with open(cnt_file, 'w') as f:
                     asd_count += asd_increment
                     f.write(str(asd_count)
                             + " "
@@ -142,7 +142,7 @@ def notify_weekly(bot):
             # UPDATE asd_count VARIABLE AFTER SLEEPING
             asd_count, *_ = get_current_count_content()
             # UPDATE DATABASE - append weekly result
-            with open("past_asd.txt", 'a') as db:
+            with open(db_file, 'a') as db:
                 db.write("\n" + str(asd_count)
                          + "\t"
                          + str(week_start)
@@ -150,7 +150,7 @@ def notify_weekly(bot):
                          + str(week_start + timedelta(days=7)))
             week_start += timedelta(days=7)
             # UPDATE CURRENT COUNTER - overwrite and reset to 0
-            with open("current_count.txt", 'w') as f:
+            with open(cnt_file, 'w') as f:
                 f.write(str(0)
                         + " "
                         + str(week_start.year).zfill(4)
@@ -158,7 +158,7 @@ def notify_weekly(bot):
                         + str(week_start.day).zfill(2)
                         + str(week_start.hour).zfill(2))
             # READ 2 LATEST RESULTS FROM DATABASE
-            with open("past_asd.txt", 'r') as db:
+            with open(db_file, 'r') as db:
                 past_week_asd_count = asd_count
                 _week_before_that_asd_count = int(db.readlines()[-2].split("\t")[0])
 
