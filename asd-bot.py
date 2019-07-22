@@ -108,7 +108,8 @@ def asd_counter(bot, update):
     if update.message.chat.type == chat.Chat.SUPERGROUP and \
             update.message.chat.title == "WEEE Chat":
         print(update.message.chat.title + " " + str(update.message.chat_id))
-        asd_increment = update.message.text.lower().count("asd")
+        # text and caption are mutually exclusive but an if here doesn't make sense
+        asd_increment = update.message.text.lower().count("asd") + update.message.caption.lower().count("asd")
         if asd_increment > 0:
             try:
                 asd_count, date, week_start = get_current_count_content()
@@ -207,7 +208,8 @@ def main():
     dp.add_handler(CommandHandler("total", print_total))
     dp.add_handler(CommandHandler("graph", history_graph))
     # for every message
-    dp.add_handler(MessageHandler(Filters.text & Filters.group, asd_counter))
+    dp.add_handler(MessageHandler((Filters.text | Filters.photo | Filters.video | Filters.document) & Filters.group,
+                                  asd_counter))
 
     # log all errors
     dp.add_error_handler(error)
