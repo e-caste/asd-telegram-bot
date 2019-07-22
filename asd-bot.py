@@ -113,9 +113,9 @@ def asd_counter(bot, update):
         text = update.message.text
         caption = update.message.caption
         if text is not None:
-            asd_increment = update.message.text.lower().count("asd")
+            asd_increment = text.lower().count("asd")
         elif caption is not None:
-            asd_increment = update.message.caption.lower().count("asd")
+            asd_increment = caption.lower().count("asd")
         else:
             asd_increment = 0
 
