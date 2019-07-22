@@ -208,7 +208,7 @@ def main():
     dp.add_handler(CommandHandler("total", print_total))
     dp.add_handler(CommandHandler("graph", history_graph))
     # for every message
-    dp.add_handler(MessageHandler((Filters.text | Filters.photo | Filters.video | Filters.document) & Filters.group,
+    dp.add_handler(MessageHandler(Filters.group,   # (Filters.text | Filters.photo | Filters.video | Filters.document) &
                                   asd_counter))
 
     # log all errors
