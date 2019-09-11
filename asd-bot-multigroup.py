@@ -6,7 +6,7 @@
 import logging
 from telegram import bot, chat, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, CallbackQueryHandler
-from robbamia import *
+from robbamia_multi import *
 from datetime import datetime, timedelta
 import time
 import threading
