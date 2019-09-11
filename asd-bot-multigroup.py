@@ -257,7 +257,7 @@ def change_notification_period(bot, update):
                                              reply_markup=reply_markup)
 
 def button(bot, update):
-    chat_id = str(update.message.chat_id)
+    chat_id = str(update.callback_query.message.chat_id)
     query = update.callback_query
     reply = ""
     try:
