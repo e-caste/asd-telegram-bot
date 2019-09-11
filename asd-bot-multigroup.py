@@ -118,7 +118,11 @@ def asd_counter(bot, update):
 
         chat_id = str(update.message.chat_id)  # originally an int
 
-        # if the group is not yet in the database: add it and make the count and database files
+        # if the group is not yet in the database:
+        # add it
+        # and make the count
+        # and database files
+        # and launch the corresponding notifier
         add_group = False
         with open(group_db, 'r') as g_db:
             if chat_id not in g_db.read():
@@ -135,6 +139,9 @@ def asd_counter(bot, update):
                           )
             with open(counts_dir + chat_id + db_file, 'a') as db:
                 db.write("0\n0\n")  # at least 2 entries needed
+            notifier = Process(target=notify, args=(bot, True, chat_id))
+            notifier.start()
+            notifier.join()
             print("New group added to the database: " + chat_id)
 
         # text and caption are mutually exclusive so at least one is None
@@ -246,7 +253,7 @@ def change_notification_period(bot, update):
         [InlineKeyboardButton("❌ close", callback_data='close')]
     ]
     reply_markup = InlineKeyboardMarkup(keyboard)
-    update.callback_query.message.reply_text('How frequently do you wish to receive a stats notification for this group?',
+    update.message.reply_text('How frequently do you wish to receive a stats notification for this group?',
                                              reply_markup=reply_markup)
 
 def button(bot, update):
@@ -267,6 +274,7 @@ def button(bot, update):
                     if line.startswith(chat_id):
                         print(chat_id + " 1"),
                         break
+                        # TODO: relaunch all notifiers
                 reply = "Switched from monthly to weekly notifications!"
             else:
                 reply = "The notifications are already on a weekly basis."
@@ -284,6 +292,7 @@ def button(bot, update):
                     if line.startswith(chat_id):
                         print(chat_id + " 0"),
                         break
+                        # TODO: relaunch all notifiers
                 reply = "Switched from weekly to monthly notifications!"
             else:
                 reply = "The notifications are already on a monthly basis."
