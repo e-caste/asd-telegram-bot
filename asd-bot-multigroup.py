@@ -212,11 +212,11 @@ def notify(bot, weekly: bool, chat_id: str):
             if weekly:
                 td = timedelta(days=7)
                 time_to_sleep = int((start + td - datetime.now()).total_seconds())
-                print(chat_id + str(time_to_sleep) + " weekly")
+                print(chat_id + " " + str(time_to_sleep) + " weekly")
             else:  # monthly
                 td = timedelta(days=30)
                 time_to_sleep = int((start + td - datetime.now()).total_seconds())
-                print(chat_id + str(time_to_sleep) + " monthly")
+                print(chat_id + " " + str(time_to_sleep) + " monthly")
 
             time.sleep(time_to_sleep)
             # time.sleep(5)
