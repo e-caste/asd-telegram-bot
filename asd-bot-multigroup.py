@@ -168,7 +168,7 @@ def notify_manager(bot):
         for group in g_db.readlines():
             chat_id = str(group.split(" ")[0])
             weekly = bool(int(group.split(" ")[1]))
-            notifiers.append(Process(notify, args=(bot, weekly, chat_id)))
+            notifiers.append(Process(target=notify, args=(bot, weekly, chat_id)))
     for notifier in notifiers:
         notifier.start()
     for notifier in notifiers:
