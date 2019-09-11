@@ -318,11 +318,12 @@ def main():
 
     # on different commands - answer in Telegram
     dp.add_handler(CommandHandler("start", start))
-    dp.add_handler(CommandHandler("help", help))
+    dp.add_handler(CommandHandler("changenotificationperiod", change_notification_period))
     dp.add_handler(CommandHandler("record", print_record))
     dp.add_handler(CommandHandler("average", print_average))
     dp.add_handler(CommandHandler("total", print_total))
     dp.add_handler(CommandHandler("graph", history_graph))
+    dp.add_handler(CommandHandler("help", help))
     # for every message
     dp.add_handler(MessageHandler((Filters.text | Filters.photo | Filters.video | Filters.document) & Filters.group,
                                   asd_counter))

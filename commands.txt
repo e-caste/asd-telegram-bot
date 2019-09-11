@@ -1,4 +1,5 @@
 start - che pensi che faccia start? (btw non serve sul gruppo)
+changenotificationperiod - cambia tra notifica mensile e settimanale (default)
 graph - te fa pure il grafico 'sto bot, che vuoi di più?
 record - te mostra er nostro record de asd che madonna proprio zio
 average - te fa 'na media arrotondata incredibile degli asd
