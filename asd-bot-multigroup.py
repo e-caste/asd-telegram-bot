@@ -26,6 +26,30 @@ logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s
 
 logger = logging.getLogger(__name__)
 
+class NotifiersManager:
+    def __init__(self, bot):
+        self.notifiers = []
+        self.bot = bot
+        self.init_notifiers()
+
+    def init_notifiers(self):
+        with open(group_db, 'r') as g_db:
+            for group in g_db.readlines():
+                chat_id = str(group.split(" ")[0])
+                weekly = bool(int(group.split(" ")[1]))
+                self.notifiers.append(Process(target=notify, args=(self.bot, weekly, chat_id), daemon=True))
+        for notifier in self.notifiers:
+            notifier.start()
+        for notifier in self.notifiers:
+            notifier.join()
+
+    def restart_notifiers(self):
+        for notifier in self.notifiers:
+            notifier.terminate()
+        time.sleep(0.5)
+        self.init_notifiers()
+
+
 def get_current_count_content(chat_id: str):
     with open(counts_dir + chat_id + cnt_file, 'r') as f:  # 'rw' is forbidden
         # 0 2019040809
@@ -169,18 +193,6 @@ def asd_counter(bot, update):
                 bot.send_message(chat_id=castes_chat_id, text="asd_counter_bot si è sminchiato perché:\n" + str(e))
                 print(e, file=stderr)
 
-def notify_manager(bot):
-    notifiers = []
-    with open(group_db, 'r') as g_db:
-        for group in g_db.readlines():
-            chat_id = str(group.split(" ")[0])
-            weekly = bool(int(group.split(" ")[1]))
-            notifiers.append(Process(target=notify, args=(bot, weekly, chat_id)))
-    for notifier in notifiers:
-        notifier.start()
-    for notifier in notifiers:
-        notifier.join()
-
 def notify(bot, weekly: bool, chat_id: str):
     """
     this function is called at the launch of the script in the main function as a separate thread
@@ -274,7 +286,7 @@ def button(bot, update):
                     if line.startswith(chat_id):
                         print(chat_id + " 1"),
                         break
-                        # TODO: relaunch all notifiers
+                notifiers_manager.restart_notifiers()
                 reply = "Switched from monthly to weekly notifications!"
             else:
                 reply = "The notifications are already on a weekly basis."
@@ -292,7 +304,7 @@ def button(bot, update):
                     if line.startswith(chat_id):
                         print(chat_id + " 0"),
                         break
-                        # TODO: relaunch all notifiers
+                notifiers_manager.restart_notifiers()
                 reply = "Switched from weekly to monthly notifications!"
             else:
                 reply = "The notifications are already on a monthly basis."
@@ -344,11 +356,21 @@ def main():
 
     # Start the Bot
     updater.start_polling()
-    t1 = threading.Thread(target=updater.idle)
-    t2 = threading.Thread(target=notify_manager(bot.Bot(token)))
 
-    t1.start()
-    t2.start()
+
+    # all the notifiers are its daemonic processes -> by restarting the manager, every notifier is correctly restarted
+    # e.g. monthly -> weekly switch or the asd-bot is added to a new group
+    updater_process = Process(target=updater.idle)
+    notifiers_manager = NotifiersManager(bot.Bot(token))
+    global notifiers_manager  # the only way to access it from the asd_counter() and button() functions
+    updater_process.start()
+    updater_process.join()
+
+    # t1 = threading.Thread(target=updater.idle)
+    # t2 = threading.Thread(target=notify_manager(bot.Bot(token)))
+    #
+    # t1.start()
+    # t2.start()
 
     # Run the bot until you press Ctrl-C or the process receives SIGINT,
     # SIGTERM or SIGABRT. This should be used most of the time, since
