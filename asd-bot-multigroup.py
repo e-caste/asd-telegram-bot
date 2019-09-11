@@ -17,7 +17,6 @@ import matplotlib.pyplot as plt
 from subprocess import Popen
 from multiprocessing import Process
 from sys import stderr
-import fileinput
 
 
 # Enable logging
@@ -289,10 +288,15 @@ def button(bot, update):
                             change_needed = True
                         break
             if change_needed:
-                for line in fileinput.input(group_db, inplace=True):
-                    if line.startswith(chat_id):
-                        print(chat_id + " 1"),
-                        break
+                with open(group_db, 'r') as g_db:
+                    g_db_lines = g_db.readlines()
+                with open(group_db, 'w') as g_db:
+                    for line in g_db_lines:
+                        if line.startswith(chat_id):
+                            g_db.write(chat_id + " 1\n")
+                        else:
+                            g_db.write(line)
+
                 notifiers_manager.restart_notifiers()
                 reply = "Switched from monthly to weekly notifications!"
             else:
@@ -307,10 +311,15 @@ def button(bot, update):
                             change_needed = True
                         break
             if change_needed:
-                for line in fileinput.input(group_db, inplace=True):
-                    if line.startswith(chat_id):
-                        print(chat_id + " 0"),
-                        break
+                with open(group_db, 'r') as g_db:
+                    g_db_lines = g_db.readlines()
+                with open(group_db, 'w') as g_db:
+                    for line in g_db_lines:
+                        if line.startswith(chat_id):
+                            g_db.write(chat_id + " 0\n")
+                        else:
+                            g_db.write(line)
+
                 notifiers_manager.restart_notifiers()
                 reply = "Switched from weekly to monthly notifications!"
             else:
