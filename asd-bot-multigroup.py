@@ -255,14 +255,14 @@ def button(bot, update):
     try:
         if query.data == 'weekly':
             change_needed = False
-            with open(counts_dir + group_db, 'r') as g_db:
+            with open(group_db, 'r') as g_db:
                 for group in g_db.readlines():
                     if group.startswith(chat_id):
                         if group.endswith("0\n"):
                             change_needed = True
                         break
             if change_needed:
-                for line in fileinput.input(counts_dir + group_db, inplace=True):
+                for line in fileinput.input(group_db, inplace=True):
                     if line.startswith(chat_id):
                         print(chat_id + " 1"),
                         break
@@ -272,14 +272,14 @@ def button(bot, update):
 
         elif query.data == 'monthly':
             change_needed = False
-            with open(counts_dir + group_db, 'r') as g_db:
+            with open(group_db, 'r') as g_db:
                 for group in g_db.readlines():
                     if group.startswith(chat_id):
                         if group.endswith("1\n"):
                             change_needed = True
                         break
             if change_needed:
-                for line in fileinput.input(counts_dir + group_db, inplace=True):
+                for line in fileinput.input(group_db, inplace=True):
                     if line.startswith(chat_id):
                         print(chat_id + " 0"),
                         break
