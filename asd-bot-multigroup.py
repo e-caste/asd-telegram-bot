@@ -169,7 +169,6 @@ def asd_counter(bot, update):
                           )
             with open(counts_dir + chat_id + db_file, 'a') as db:
                 db.write("0\n0\n")  # at least 2 entries needed
-            global notifiers_manager
             notifiers_manager.restart_notifiers()
             print("New group added to the database: " + chat_id)
 
@@ -277,7 +276,6 @@ def button(bot, update):
     chat_id = str(update.callback_query.message.chat_id)
     query = update.callback_query
     reply = ""
-    global notifiers_manager
     try:
         if query.data == 'weekly':
             change_needed = False
@@ -376,11 +374,12 @@ def main():
 
     # all the notifiers are its daemonic processes -> by restarting the manager, every notifier is correctly restarted
     # e.g. monthly -> weekly switch or the asd-bot is added to a new group
-    updater_process = Process(target=updater.idle)
+    # updater_process = Process(target=updater.idle)
     global notifiers_manager  # the only way to access it from the asd_counter() and button() functions
     notifiers_manager = NotifiersManager(bot.Bot(token))
-    updater_process.start()
-    updater_process.join()
+    updater.idle()
+    # updater_process.start()
+    # updater_process.join()
 
     # t1 = threading.Thread(target=updater.idle)
     # t2 = threading.Thread(target=notify_manager(bot.Bot(token)))
