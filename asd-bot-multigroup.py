@@ -135,6 +135,7 @@ def asd_counter(bot, update):
                           )
             with open(counts_dir + chat_id + db_file, 'a') as db:
                 db.write("0\n0\n")  # at least 2 entries needed
+            print("New group added to the database: " + chat_id)
 
         # text and caption are mutually exclusive so at least one is None
         text = update.message.text
