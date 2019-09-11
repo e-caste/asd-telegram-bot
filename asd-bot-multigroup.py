@@ -128,9 +128,9 @@ def asd_counter(bot, update):
                 g_db.write(chat_id + " 1\n")  # automatically set weekly to True
             with open(counts_dir + chat_id + cnt_file, 'a') as cnt:
                 cnt.write("0 "
-                          + str(datetime.today().year)
-                          + str(datetime.today().month)
-                          + str(datetime.today().day)
+                          + str(datetime.today().year).zfill(4)
+                          + str(datetime.today().month).zfill(2)
+                          + str(datetime.today().day).zfill(2)
                           + "09"  # to receive notifications at 9a.m.
                           )
             with open(counts_dir + chat_id + db_file, 'a') as db:
