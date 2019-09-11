@@ -169,9 +169,8 @@ def asd_counter(bot, update):
                           )
             with open(counts_dir + chat_id + db_file, 'a') as db:
                 db.write("0\n0\n")  # at least 2 entries needed
-            notifier = Process(target=notify, args=(bot, True, chat_id))
-            notifier.start()
-            notifier.join()
+            global notifiers_manager
+            notifiers_manager.restart_notifiers()
             print("New group added to the database: " + chat_id)
 
         # text and caption are mutually exclusive so at least one is None
@@ -213,11 +212,11 @@ def notify(bot, weekly: bool, chat_id: str):
             if weekly:
                 td = timedelta(days=7)
                 time_to_sleep = int((start + td - datetime.now()).total_seconds())
-                print(str(time_to_sleep) + " weekly")
+                print(chat_id + str(time_to_sleep) + " weekly")
             else:  # monthly
                 td = timedelta(days=30)
                 time_to_sleep = int((start + td - datetime.now()).total_seconds())
-                print(str(time_to_sleep) + " monthly")
+                print(chat_id + str(time_to_sleep) + " monthly")
 
             time.sleep(time_to_sleep)
             # time.sleep(5)
@@ -278,6 +277,7 @@ def button(bot, update):
     chat_id = str(update.callback_query.message.chat_id)
     query = update.callback_query
     reply = ""
+    global notifiers_manager
     try:
         if query.data == 'weekly':
             change_needed = False
@@ -331,7 +331,7 @@ def button(bot, update):
         query.edit_message_text(text=reply)
 
     except Exception as e:
-        query.edit_message_text(text=str(e))
+        query.edit_message_text(text=e)
         print(e, file=stderr)
 
 def help(bot, update):
