@@ -377,8 +377,8 @@ def main():
     # all the notifiers are its daemonic processes -> by restarting the manager, every notifier is correctly restarted
     # e.g. monthly -> weekly switch or the asd-bot is added to a new group
     updater_process = Process(target=updater.idle)
-    notifiers_manager = NotifiersManager(bot.Bot(token))
     global notifiers_manager  # the only way to access it from the asd_counter() and button() functions
+    notifiers_manager = NotifiersManager(bot.Bot(token))
     updater_process.start()
     updater_process.join()
 
