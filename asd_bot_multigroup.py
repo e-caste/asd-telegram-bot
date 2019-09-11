@@ -15,13 +15,44 @@ import os
 import matplotlib.pyplot as plt
 from subprocess import Popen
 from sys import stderr
-from notifiers_manager import notifiers_manager
+# from notifiers_manager import notifiers_manager  # ImportError: probably due to circular import
+from multiprocessing import Process
 
 # Enable logging
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
                     level=logging.INFO)
 
 logger = logging.getLogger(__name__)
+
+class Singleton(type):
+    _instances = {}
+    def __call__(cls, *args, **kwargs):
+        if cls not in cls._instances:
+            cls._instances[cls] = super(Singleton, cls).__call__(*args, **kwargs)
+        return cls._instances[cls]
+
+class NotifiersManager(metaclass=Singleton):
+    def __init__(self, bot):
+        self.notifiers = []
+        self.bot = bot
+        self.init_notifiers()
+
+    def init_notifiers(self):
+        with open(group_db, 'r') as g_db:
+            for group in g_db.readlines():
+                chat_id = str(group.split(" ")[0])
+                weekly = bool(int(group.split(" ")[1]))
+                self.notifiers.append(Process(target=notify, args=(self.bot, weekly, chat_id), daemon=True))
+        for notifier in self.notifiers:
+            notifier.start()
+        for notifier in self.notifiers:
+            notifier.join()
+
+    def restart_notifiers(self):
+        for notifier in self.notifiers:
+            notifier.terminate()
+        time.sleep(0.5)
+        self.init_notifiers()
 
 def get_current_count_content(chat_id: str):
     with open(counts_dir + chat_id + cnt_file, 'r') as f:  # 'rw' is forbidden
@@ -345,8 +376,8 @@ def main():
     # all the notifiers are its daemonic processes -> by restarting the manager, every notifier is correctly restarted
     # e.g. monthly -> weekly switch or the asd-bot is added to a new group
     # updater_process = Process(target=updater.idle)
-    # global notifiers_manager  # the only way to access it from the asd_counter() and button() functions
-    # notifiers_manager = NotifiersManager(bot.Bot(token))
+    global notifiers_manager  # the only way to access it from the asd_counter() and button() functions
+    notifiers_manager = NotifiersManager(bot.Bot(token))
     updater.idle()
     # updater_process.start()
     # updater_process.join()
