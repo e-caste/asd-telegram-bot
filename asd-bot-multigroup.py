@@ -169,7 +169,8 @@ def asd_counter(bot, update):
                           )
             with open(counts_dir + chat_id + db_file, 'a') as db:
                 db.write("0\n0\n")  # at least 2 entries needed
-            notifiers_manager.restart_notifiers()
+            # notifiers_manager.restart_notifiers()
+            globals()['notifiers_manager'].restart_notifiers()
             print("New group added to the database: " + chat_id)
 
         # text and caption are mutually exclusive so at least one is None
@@ -295,7 +296,8 @@ def button(bot, update):
                         else:
                             g_db.write(line)
 
-                notifiers_manager.restart_notifiers()
+                # notifiers_manager.restart_notifiers()
+                globals()['notifiers_manager'].restart_notifiers()
                 reply = "Switched from monthly to weekly notifications!"
             else:
                 reply = "The notifications are already on a weekly basis."
@@ -318,7 +320,8 @@ def button(bot, update):
                         else:
                             g_db.write(line)
 
-                notifiers_manager.restart_notifiers()
+                # notifiers_manager.restart_notifiers()
+                globals()['notifiers_manager'].restart_notifiers()
                 reply = "Switched from weekly to monthly notifications!"
             else:
                 reply = "The notifications are already on a monthly basis."
