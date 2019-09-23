@@ -71,8 +71,8 @@ def get_current_count_content(chat_id: str):
 def start(bot, update):
     """Send a message when the command /start is issued."""
     bot.send_message(chat_id=update.message.chat_id, text='Hi ' + update.message.from_user.first_name +
-                                                          ', welcome to asd bot! I only count asds from a certain'
-                                                          " group chat, so I'm pretty useless to you now :D")
+                                                          ', welcome to asd bot! I only count asds from certain'
+                                                          " group chats, so I'm pretty useless to you now :D")
 
 def print_record(bot, update):
     chat_id = str(update.message.chat_id)
@@ -95,7 +95,10 @@ def print_average(bot, update):
             if tmp != 0:
                 sum += tmp
                 cnt += 1
-    avg = round(float(sum/cnt), 2)
+    if cnt == 0:
+        avg = 0  # avoid dividing by 0
+    else:
+        avg = round(float(sum/cnt), 2)
     bot.send_message(chat_id=chat_id, text="La nostra media attuale di asd settimanali è di "
                                                           + str(avg) + " asd. Asdate di più per alzarla!")
 
@@ -135,7 +138,7 @@ def history_graph(bot, update, chat_id: str = ""):
     bot.send_photo(chat_id=chat_id, photo=open(path_to_graph, 'rb'))
 
 
-def asd_counter(bot, update):
+def asd_counter(bot, update, notifiers_manager):
     """
     this function increases the asd_count and writes it to disk
     when a new message on the filtered group contains at least 1 "asd"
@@ -271,7 +274,7 @@ def change_notification_period(bot, update):
     update.message.reply_text('How frequently do you wish to receive a stats notification for this group?',
                                              reply_markup=reply_markup)
 
-def button(bot, update):
+def button(bot, update, notifiers_manager):
     chat_id = str(update.callback_query.message.chat_id)
     query = update.callback_query
     reply = ""
@@ -344,6 +347,9 @@ def error(bot, update):
 
 def main():
     """Start the bot."""
+
+    notifiers_manager = NotifiersManager(bot.Bot(token))
+
     # Create the Updater and pass it your bot's token.
     # Make sure to set use_context=True to use the new context based callbacks
     # Post version 12 this will no longer be necessary
@@ -362,9 +368,9 @@ def main():
     dp.add_handler(CommandHandler("help", help))
     # for every message
     dp.add_handler(MessageHandler((Filters.text | Filters.photo | Filters.video | Filters.document) & Filters.group,
-                                  asd_counter))
+                                  asd_counter(notifiers_manager=notifiers_manager)))
     # inline messages handler
-    updater.dispatcher.add_handler(CallbackQueryHandler(button))
+    updater.dispatcher.add_handler(CallbackQueryHandler(button(notifiers_manager=notifiers_manager)))
 
     # log all errors
     dp.add_error_handler(error)
@@ -376,8 +382,8 @@ def main():
     # all the notifiers are its daemonic processes -> by restarting the manager, every notifier is correctly restarted
     # e.g. monthly -> weekly switch or the asd-bot is added to a new group
     # updater_process = Process(target=updater.idle)
-    global notifiers_manager  # the only way to access it from the asd_counter() and button() functions
-    notifiers_manager = NotifiersManager(bot.Bot(token))
+    # global notifiers_manager  # the only way to access it from the asd_counter() and button() functions
+    # notifiers_manager = NotifiersManager(bot.Bot(token))
     updater.idle()
     # updater_process.start()
     # updater_process.join()
