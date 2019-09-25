@@ -179,7 +179,7 @@ def notify(bot):
             td = timedelta(days=7)
 
             with open(group_db, 'r') as g_db:
-                first_chat_id = g_db.readlines()[0]  # every chat_id has the same start date in this simplified version
+                first_chat_id = g_db.readlines()[0].split("\n")[0]  # every chat_id has the same start date in this simplified version
                 *_, start = get_current_count_content(first_chat_id)
 
             time_to_sleep = int((start + td - datetime.now()).total_seconds())
