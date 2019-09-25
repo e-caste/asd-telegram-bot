@@ -265,7 +265,7 @@ def main():
     updater.start_polling()
 
     updater_process = Process(target=updater.idle)
-    notify_process = Process(target=notify, args=(bot.Bot(token)))
+    notify_process = Process(target=notify, args=bot.Bot(token))
 
     updater_process.start()
     notify_process.start()
