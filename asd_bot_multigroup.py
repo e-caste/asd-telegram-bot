@@ -129,7 +129,7 @@ def asd_counter(bot, update):
                 add_group = True
         if add_group:
             with open(group_db, 'a') as g_db:
-                g_db.write(chat_id)
+                g_db.write(chat_id + "\n")
             with open(counts_dir + chat_id + cnt_file, 'a') as cnt:
                 cnt.write("0 "
                           + str(datetime.today().year).zfill(4)
@@ -188,6 +188,7 @@ def notify(bot):
 
             with open(group_db, 'r') as g_db:
                 for chat_id in g_db.readlines():
+                    chat_id = chat_id.split("\n")[0]  # ignore \n at end of line
                     # UPDATE asd_count VARIABLE AFTER SLEEPING
                     asd_count, *_ = get_current_count_content(chat_id)
                     # UPDATE DATABASE - append weekly result
