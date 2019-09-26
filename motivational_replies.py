@@ -1,7 +1,7 @@
 ismore = [
     "Bravi amici, questa settimana avete aumentato l'asdaggio come si deve!\n"
     "\t'Ma il cielo è seeeeeempre più asd'",
-    "Team WEEE Open: da questa settimana con il 69% di asd in più!",
+    # "Team WEEE Open: da questa settimana con il 69% di asd in più!",
     "'L'asd scorre potente in lui...'",
     "'Asda tu che asdo anch'io,\n e questa settimana abbiamo asdato come non mai'",
     "'Asdame, asdame mucho\n"
@@ -15,8 +15,8 @@ isless = [
     "Asdate in pace",
     "'I find your lack of asd disturbing'\n"
     "\t- Master Asd in Asd Wars chapter 69: The return of the Asd",
-    "Cari WEEEini, care WEEEine,\nState asdando troppo poco. Asdate di più.\n"
-    "Cordiali saluti,\nIl bot dell'asd"
+    # "Cari WEEEini, care WEEEine,\nState asdando troppo poco. Asdate di più.\n"
+    # "Cordiali saluti,\nIl bot dell'asd"
 ]
 
 equals = [
