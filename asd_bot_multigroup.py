@@ -95,6 +95,9 @@ def history_graph(bot, update, chat_id: str = ""):
             # number of asds
             y.append(int(line.split("\t")[0]))
 
+    if not chat_id == "":  # only show the last half year progress when sending notification
+        x = x[-26:]
+        y = y[-26:]
     plt.plot(x, y)
     plt.xticks(x, rotation=90)
     plt.tick_params(axis='x', which='major', labelsize=8)
