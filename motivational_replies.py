@@ -67,7 +67,9 @@ isless = [
 
     "Lo sai che la tachipirina 500 se ne prendi due\nDiventa asd",
 
-    "I tried so hard and got so asd...\nBut in the end, it doesn't even matter..."
+    "I tried so hard and got so asd...\nBut in the end, it doesn't even matter...",
+
+    "Asd asd... you shot me down...\nAsd asd... I hit the ground...\nAsd asd...",
 
     # "Cari WEEEini, care WEEEine,\nState asdando troppo poco. Asdate di più.\n"
     # "Cordiali saluti,\nIl bot dell'asd"
