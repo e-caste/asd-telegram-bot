@@ -154,7 +154,7 @@ def asd_counter(bot, update):
         else:
             asd_increment = 0
 
-        if asd_increment > 0:
+        if 0 < asd_increment < 10:
             try:
                 asd_count, date, week_start = get_current_count_content(chat_id)
                 print(asd_count, date)
