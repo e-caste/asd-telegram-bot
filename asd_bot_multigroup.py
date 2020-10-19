@@ -241,6 +241,16 @@ def notify(bot):
             print(e, file=stderr)
 
 
+def why(bot, update):
+    """Explain what asd means for our society and our future"""
+    bot.send_message(chat_id=update.message.chat_id,
+                     text='Why not? Asd'
+                          '<a href="https://nonciclopedia.org/wiki/Asd">Assorbi il sapere ITALIANO</a>'
+                          '<a href="https://www.urbandictionary.com/define.php?term=asd">Risucchia la knowledge MMERRICANA</a>'
+                          '<a href="https://www.youtube.com/watch?v=dQw4w9WgXcQ">Spiegazione ultramegadettagliata the best</a>',
+                     parse_mode="HTML")
+
+
 def help(bot, update):
     """Send a message when the command /help is issued."""
     bot.send_message(chat_id=update.message.chat_id, text='https://youtu.be/cueulBxn1Fw')
@@ -267,6 +277,7 @@ def main():
     dp.add_handler(CommandHandler("average", print_average))
     dp.add_handler(CommandHandler("total", print_total))
     dp.add_handler(CommandHandler("graph", history_graph))
+    dp.add_handler(CommandHandler("why", why))
     dp.add_handler(CommandHandler("help", help))
     # for every message
     dp.add_handler(MessageHandler((Filters.text | Filters.photo | Filters.video | Filters.document) & Filters.group,
