@@ -244,10 +244,10 @@ def notify(bot):
 def why(bot, update):
     """Explain what asd means for our society and our future"""
     bot.send_message(chat_id=update.message.chat_id,
-                     text='Why not? Asd'
-                          '<a href="https://nonciclopedia.org/wiki/Asd">Assorbi il sapere ITALIANO</a>'
-                          '<a href="https://www.urbandictionary.com/define.php?term=asd">Risucchia la knowledge MMERRICANA</a>'
-                          '<a href="https://www.youtube.com/watch?v=dQw4w9WgXcQ">Spiegazione ultramegadettagliata the best</a>',
+                     text='Why not? Asd\n'
+                          '<a href="https://nonciclopedia.org/wiki/Asd">Assorbi il sapere ITALIANO</a>\n'
+                          '<a href="https://www.urbandictionary.com/define.php?term=asd">Risucchia la knowledge MMERRICANA</a>\n'
+                          '<a href="https://www.youtube.com/watch?v=dQw4w9WgXcQ">Spiegazione ultramegadettagliata the best</a>\n',
                      parse_mode="HTML")
 
 
