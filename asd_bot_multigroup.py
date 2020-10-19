@@ -23,6 +23,7 @@ logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s
 
 logger = logging.getLogger(__name__)
 
+
 def get_current_count_content(chat_id: str):
     with open(counts_dir + chat_id + cnt_file, 'r') as f:  # 'rw' is forbidden
         # 0 2019040809
@@ -35,6 +36,7 @@ def get_current_count_content(chat_id: str):
                           hour=int(date[8:10]))
     return asd_count, date, week_start
 
+
 # Define a few command handlers. These usually take the two arguments bot and
 # update. Error handlers also receive the raised TelegramError object in error.
 def start(bot, update):
@@ -42,6 +44,7 @@ def start(bot, update):
     bot.send_message(chat_id=update.message.chat_id, text='Ciao ' + update.message.from_user.first_name +
                                                           ', benvenuto su asd bot! Conto solo gli asd dei gruppi'
                                                           ' dove sono presente, quindi a te ora non servo a nulla asd')
+
 
 def print_record(bot, update):
     chat_id = str(update.message.chat_id)
@@ -52,7 +55,8 @@ def print_record(bot, update):
             if tmp > record:
                 record = tmp
     bot.send_message(chat_id=chat_id, text="Il nostro record attuale di asd settimanali è di "
-                                                            + str(record) + " asd. Asdate di più per batterlo!")
+                                           + str(record) + " asd. Asdate di più per batterlo!")
+
 
 def print_average(bot, update):
     chat_id = str(update.message.chat_id)
@@ -67,9 +71,10 @@ def print_average(bot, update):
     if cnt == 0:
         avg = 0  # avoid dividing by 0
     else:
-        avg = round(float(sum/cnt), 2)
+        avg = round(float(sum / cnt), 2)
     bot.send_message(chat_id=chat_id, text="La nostra media attuale di asd settimanali è di "
-                                                          + str(avg) + " asd. Asdate di più per alzarla!")
+                                           + str(avg) + " asd. Asdate di più per alzarla!")
+
 
 def print_total(bot, update):
     chat_id = str(update.message.chat_id)
@@ -80,7 +85,8 @@ def print_total(bot, update):
     current_count, *_ = get_current_count_content(chat_id)
     sum += current_count
     bot.send_message(chat_id=chat_id, text="Il nostro totale attuale di asd è di "
-                                                          + str(sum) + " asd.")
+                                           + str(sum) + " asd.")
+
 
 def history_graph(bot, update, chat_id: str = ""):
     # the function has been invoked by a user, otherwise it has been invoked by notify()
@@ -169,6 +175,7 @@ def asd_counter(bot, update):
                 bot.send_message(chat_id=castes_chat_id, text="asd_counter_bot si è sminchiato perché:\n" + str(e))
                 print(e, file=stderr)
 
+
 def notify(bot):
     """
     this function is called at the launch of the script in the main function as a separate process
@@ -182,7 +189,8 @@ def notify(bot):
             td = timedelta(days=7)
 
             with open(group_db, 'r') as g_db:
-                first_chat_id = g_db.readlines()[0].split("\n")[0]  # every chat_id has the same start date in this simplified version
+                first_chat_id = g_db.readlines()[0].split("\n")[
+                    0]  # every chat_id has the same start date in this simplified version
                 *_, start = get_current_count_content(first_chat_id)
 
             time_to_sleep = int((start + td - datetime.now()).total_seconds())
@@ -225,12 +233,13 @@ def notify(bot):
                     else:  # past_week_asd_count < _week_before_that_asd_count:
                         reply = random.choice(isless)
                         end = ", ossia " + str(diff) + " asd in meno rispetto alla scorsa settimana. D'oh!"
-                    bot.send_message(chat_id=chat_id, text=reply+stats+end)
+                    bot.send_message(chat_id=chat_id, text=reply + stats + end)
                     history_graph(bot, None, chat_id)
 
         except Exception as e:
             bot.send_message(chat_id=castes_chat_id, text="asd_counter_bot si è sminchiato perché:\n" + str(e))
             print(e, file=stderr)
+
 
 def help(bot, update):
     """Send a message when the command /help is issued."""
@@ -240,6 +249,7 @@ def help(bot, update):
 def error(bot, update):
     """Log Errors caused by Updates."""
     logger.warning('Update "%s" caused error "%s"', bot, update.error)
+
 
 def main():
     """Start the bot."""
