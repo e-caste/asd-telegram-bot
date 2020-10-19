@@ -3,6 +3,7 @@ graph - te fa pure il grafico 'sto bot, che vuoi di più?
 record - te mostra er nostro record de asd che madonna proprio zio
 average - te fa 'na media arrotondata incredibile degli asd
 total - te conta tutti ma te dico tutti gli asd mai mandati
+why - te spiega che vor dì asd
 help - vedi te, se non sai che fa l'help...
 
 
