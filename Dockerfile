@@ -14,5 +14,7 @@ ENV GRAPH_FILE="_history_graph.png"
 WORKDIR /bot
 CMD ["python", "-u", "asd_bot_multigroup.py", ">", "logs/log_$(date +%s).txt", "2>&1"]
 
+# build with
+#   docker build -t asdbot .
 # run with
 # -e TOKEN=... -e CST_CID=...
