@@ -24,6 +24,36 @@ logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s
 logger = logging.getLogger(__name__)
 
 
+def calculate_time_to_sleep(hour: int, minute: int = 0) -> int:
+    """
+    Calculate time to sleep to perform an action at a given hour and minute
+    by e-caste
+    """
+    # hour is before given hour -> wait until today at given hour and minute
+    if int(datetime.now().time().strftime('%k')) < hour:
+        time_to_sleep = int(
+            (datetime.today().replace(hour=hour, minute=minute, second=0)
+             - datetime.now()).total_seconds())
+    # hour is equal to given hour
+    elif int(datetime.now().time().strftime('%k')) == hour:
+        # minute is before given minute -> wait until today at given time
+        if int(datetime.now().time().strftime('%M')) < minute:
+            time_to_sleep = int(
+                (datetime.today().replace(hour=hour, minute=minute, second=0)
+                 - datetime.now()).total_seconds())
+        # minute is after given minute -> wait until tomorrow at given time
+        else:
+            time_to_sleep = int(
+                (datetime.today().replace(hour=hour, minute=minute, second=0) + timedelta(days=1)
+                 - datetime.now()).total_seconds())
+    # hour is after given hour -> wait until tomorrow at given time
+    else:
+        time_to_sleep = int(
+            (datetime.today().replace(hour=hour, minute=minute, second=0) + timedelta(days=1)
+             - datetime.now()).total_seconds())
+    return time_to_sleep
+
+
 def get_current_count_content(chat_id: str):
     with open(counts_dir + chat_id + cnt_file, 'r') as f:  # 'rw' is forbidden
         # 0 2019040809
@@ -186,16 +216,24 @@ def notify(bot):
     """
     while True:
         try:
+            # first, sleep until 5am
+            time_to_sleep = calculate_time_to_sleep(hour=5, minute=0)
+            sleep(time_to_sleep)
+
+            # then, sleep until desired hour - this should compute the correct hour
+            # even for the days when the hour changes
             with open(group_db, 'r') as g_db:
                 # every chat_id has the same start date in this simplified version
                 first_chat_id = g_db.readlines()[0].split("\n")[0]
                 *_, start = get_current_count_content(first_chat_id)
 
-            time_to_sleep = int((start.hour + timedelta(days=1)).total_seconds())
+            time_to_sleep = calculate_time_to_sleep(hour=start.hour, minute=0)
             print(str(time_to_sleep) + " daily")
             sleep(time_to_sleep)
 
-            if datetime.today().strftime("%A") != "Monday":
+            weekday = datetime.today().strftime("%A")
+            if weekday != "Monday":
+                print("Skipping notification on " + weekday)
                 continue
 
             # this is because the message is set to be weekly
