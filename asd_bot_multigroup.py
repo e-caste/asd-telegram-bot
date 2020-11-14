@@ -6,7 +6,6 @@
 import logging
 from telegram import bot, chat
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
-from robbamia_multi import *
 from datetime import datetime, timedelta
 from time import sleep
 from motivational_replies import *
@@ -16,6 +15,15 @@ import matplotlib.pyplot as plt
 from subprocess import Popen
 from sys import stderr
 from multiprocessing import Process
+
+# import Docker environment variables
+token = os.environ["TOKEN"]
+castes_chat_id = os.environ["CST_CID"]
+counts_dir = os.environ["COUNTS_DIR"]
+group_db = os.environ["GROUP_DB"]
+db_file = os.environ["DB_FILE"]
+cnt_file = os.environ["CNT_FILE"]
+graph_file = os.environ["GRAPH_FILE"]
 
 # Enable logging
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
@@ -345,5 +353,4 @@ def main():
 
 
 if __name__ == '__main__':
-    os.chdir(rasPi_working_directory)
     main()
