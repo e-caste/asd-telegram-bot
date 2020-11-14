@@ -180,23 +180,26 @@ def notify(bot):
     """
     this function is called at the launch of the script in the main function as a separate process
     this function is NOT to be called by a Message or Command Handler
-    we use time.sleep() with the number of seconds until the date found in current_count.txt
-    + timedelta(days=7) - datetime.now()
+    we use time.sleep() with the number of seconds until the day after the date found in current_count.txt
+    at the same hour, until it's Monday
     then notify group with a random phrase based on asd increase or decrease
     """
     while True:
         try:
-            td = timedelta(days=7)
-
             with open(group_db, 'r') as g_db:
                 first_chat_id = g_db.readlines()[0].split("\n")[
                     0]  # every chat_id has the same start date in this simplified version
                 *_, start = get_current_count_content(first_chat_id)
 
-            time_to_sleep = int((start + td - datetime.now()).total_seconds())
-            print(str(time_to_sleep) + " weekly")
+            time_to_sleep = int((start.hour + timedelta(days=1)).total_seconds())
+            print(str(time_to_sleep) + " daily")
             sleep(time_to_sleep)
 
+            if datetime.today().strftime("%A") != "Monday":
+                continue
+
+            # this is because the message is set to be weekly
+            td = timedelta(days=7)
             with open(group_db, 'r') as g_db:
                 for chat_id in g_db.readlines():
                     chat_id = chat_id.split("\n")[0]  # ignore \n at end of line
