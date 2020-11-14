@@ -187,8 +187,8 @@ def notify(bot):
     while True:
         try:
             with open(group_db, 'r') as g_db:
-                first_chat_id = g_db.readlines()[0].split("\n")[
-                    0]  # every chat_id has the same start date in this simplified version
+                # every chat_id has the same start date in this simplified version
+                first_chat_id = g_db.readlines()[0].split("\n")[0]
                 *_, start = get_current_count_content(first_chat_id)
 
             time_to_sleep = int((start.hour + timedelta(days=1)).total_seconds())
