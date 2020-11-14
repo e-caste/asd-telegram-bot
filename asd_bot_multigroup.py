@@ -153,7 +153,7 @@ def asd_counter(bot, update):
     """
     if update.message.chat.type == chat.Chat.SUPERGROUP or \
             update.message.chat.type == chat.Chat.GROUP:
-        print(str(datetime.now()) + " " + update.message.chat.title + " " + str(update.message.chat_id))
+        logger.info(str(datetime.now()) + " " + update.message.chat.title + " " + str(update.message.chat_id))
 
         chat_id = str(update.message.chat_id)  # originally an int
 
@@ -178,7 +178,7 @@ def asd_counter(bot, update):
                           )
             with open(counts_dir + chat_id + db_file, 'a') as db:
                 db.write("0\n0\n")  # at least 2 entries needed
-            print("New group added to the database: " + chat_id)
+            logger.info("New group added to the database: " + chat_id)
 
         # text and caption are mutually exclusive so at least one is None
         text = update.message.text
@@ -193,17 +193,17 @@ def asd_counter(bot, update):
         if 0 < asd_increment < 10:
             try:
                 asd_count, date, week_start = get_current_count_content(chat_id)
-                print(asd_count, date)
+                logger.info(asd_count, date)
                 with open(counts_dir + chat_id + cnt_file, 'w') as f:
                     asd_count += asd_increment
                     f.write(str(asd_count)
                             + " "
                             + date)
-                print("asd counter increased to " + str(asd_count))
+                logger.info("asd counter increased to " + str(asd_count))
 
             except Exception as e:
                 bot.send_message(chat_id=castes_chat_id, text="asd_counter_bot si è sminchiato perché:\n" + str(e))
-                print(e, file=stderr)
+                logger.error(e, file=stderr)
 
 
 def notify(bot):
@@ -228,12 +228,12 @@ def notify(bot):
                 *_, start = get_current_count_content(first_chat_id)
 
             time_to_sleep = calculate_time_to_sleep(hour=start.hour, minute=0)
-            print(str(time_to_sleep) + " daily")
+            logger.info(str(time_to_sleep) + " daily")
             sleep(time_to_sleep)
 
             weekday = datetime.today().strftime("%A")
             if weekday != "Monday":
-                print("Skipping notification on " + weekday)
+                logger.info("Skipping notification on " + weekday)
                 continue
 
             # this is because the message is set to be weekly
@@ -279,7 +279,7 @@ def notify(bot):
 
         except Exception as e:
             bot.send_message(chat_id=castes_chat_id, text="asd_counter_bot si è sminchiato perché:\n" + str(e))
-            print(e, file=stderr)
+            logger.info(e, file=stderr)
 
 
 def why(bot, update):
