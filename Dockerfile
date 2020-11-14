@@ -9,6 +9,7 @@ ENV GROUP_DB="group_db.txt"
 ENV DB_FILE="_past_asd.txt"
 ENV CNT_FILE="_current_count.txt"
 ENV GRAPH_FILE="_history_graph.png"
+RUN pip install -r requirements.txt
 WORKDIR /bot
 CMD ["python", "-u", "asd_bot_multigroup.py", ">", "logs/log_$(date +%s).txt", "2>&1"]
 
