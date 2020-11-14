@@ -201,7 +201,7 @@ def asd_counter(bot, update):
         if 0 < asd_increment < 10:
             try:
                 asd_count, date, week_start = get_current_count_content(chat_id)
-                logger.info(str(asd_count), date)
+                logger.info(str(asd_count) + date)
                 with open(counts_dir + chat_id + cnt_file, 'w') as f:
                     asd_count += asd_increment
                     f.write(str(asd_count)
