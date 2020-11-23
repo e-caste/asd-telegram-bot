@@ -132,7 +132,7 @@ def history_graph(bot, update, chat_id: str = ""):
     if show_from_beginning:
         chat_id = str(update.message.chat_id)
 
-    db_path = os.path.join(counts_dir, chat_id, db_file)
+    db_path = os.path.join(counts_dir, chat_id + db_file)
     if not os.path.exists(db_path):
         bot.send_message(chat_id=chat_id, text="Non ci sono statistiche salvate per questa chat. "
                                                "Prova in un gruppo dove sono presente! Asd")
@@ -161,7 +161,7 @@ def history_graph(bot, update, chat_id: str = ""):
     plt.xticks(x, rotation=90)
     plt.tick_params(axis='x', which='major', labelsize=8)
     plt.tight_layout()
-    path_to_graph = os.path.join(counts_dir, chat_id, graph_file)
+    path_to_graph = os.path.join(counts_dir, chat_id + graph_file)
     if os.path.exists(path_to_graph):
         Popen(["rm", path_to_graph])
     plt.savefig(path_to_graph, dpi=300, bbox_inches='tight')
