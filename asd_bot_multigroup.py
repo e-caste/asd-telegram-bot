@@ -158,7 +158,7 @@ def history_graph(bot, update, chat_id: str = ""):
         # only show 1 in step labels for readability
         step = int(len(x) / 50) + 1
     plt.plot(x, y)
-    plt.xticks(range(0, len(x), step), x, rotation=90)
+    plt.xticks(range(0, len(x), step), rotation=90)
     plt.tick_params(axis='x', which='major', labelsize=8)
     plt.tight_layout()
     path_to_graph = os.path.join(counts_dir, chat_id + graph_file)
