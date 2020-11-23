@@ -156,7 +156,7 @@ def history_graph(bot, update, chat_id: str = ""):
     plt.xticks(x, rotation=90)
     plt.tick_params(axis='x', which='major', labelsize=8)
     plt.tight_layout()
-    path_to_graph = counts_dir + chat_id + graph_file
+    path_to_graph = os.path.join(counts_dir, chat_id, graph_file)
     if os.path.exists(path_to_graph):
         Popen(["rm", path_to_graph])
     plt.savefig(path_to_graph, dpi=300, bbox_inches='tight')
