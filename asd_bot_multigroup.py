@@ -135,10 +135,14 @@ def history_graph(bot, update, chat_id: str = ""):
     y = []
     with open(counts_dir + chat_id + db_file, 'r') as db:
         for line in db.readlines()[2:]:  # skips first 2 lines which only contain a 0
-            # starting date
-            x.append(str(line.split("- ")[1].split(" ")[0]))
-            # number of asds
-            y.append(int(line.split("\t")[0]))
+            try:
+                # starting date
+                x.append(str(line.split("- ")[1].split(" ")[0]))
+                # number of asds
+                y.append(int(line.split("\t")[0]))
+            # skip groups that have wrongly formatted or no data
+            except IndexError:
+                return
 
     if not show_from_beginning:  # only show the last half year progress when sending notification
         x = x[-26:]
