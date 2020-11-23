@@ -131,9 +131,14 @@ def history_graph(bot, update, chat_id: str = ""):
     show_from_beginning = chat_id == ""
     if show_from_beginning:
         chat_id = str(update.message.chat_id)
+
+    db_path = os.path.join(counts_dir, chat_id, db_file)
+    if not os.path.exists(db_path):
+        bot.send_message(chat_id=chat_id, text="Non ci sono statistiche salvate per questa chat. "
+                                               "Prova in un gruppo dove sono presente! Asd")
     x = []
     y = []
-    with open(counts_dir + chat_id + db_file, 'r') as db:
+    with open(db_path, 'r') as db:
         for line in db.readlines()[2:]:  # skips first 2 lines which only contain a 0
             try:
                 # starting date
