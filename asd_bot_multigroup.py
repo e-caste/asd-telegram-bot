@@ -128,7 +128,8 @@ def print_total(bot, update):
 
 def history_graph(bot, update, chat_id: str = ""):
     # the function has been invoked by a user, otherwise it has been invoked by notify()
-    if chat_id == "":
+    show_from_beginning = chat_id == ""
+    if show_from_beginning:
         chat_id = str(update.message.chat_id)
     x = []
     y = []
@@ -139,7 +140,7 @@ def history_graph(bot, update, chat_id: str = ""):
             # number of asds
             y.append(int(line.split("\t")[0]))
 
-    if not chat_id == "":  # only show the last half year progress when sending notification
+    if not show_from_beginning:  # only show the last half year progress when sending notification
         x = x[-26:]
         y = y[-26:]
     plt.plot(x, y)
