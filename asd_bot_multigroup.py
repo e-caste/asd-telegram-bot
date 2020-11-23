@@ -149,9 +149,14 @@ def history_graph(bot, update, chat_id: str = ""):
             except IndexError:
                 return
 
-    if not show_from_beginning:  # only show the last half year progress when sending notification
+    if not show_from_beginning:
+        # only show the last half year progress when sending notification
         x = x[-26:]
         y = y[-26:]
+    else:
+        # only show 1 in step labels for readability
+        step = int(len(x) / 50) + 1
+        x = [label if i % step == 0 else "" for i, label in enumerate(x)]
     plt.plot(x, y)
     plt.xticks(x, rotation=90)
     plt.tick_params(axis='x', which='major', labelsize=8)
