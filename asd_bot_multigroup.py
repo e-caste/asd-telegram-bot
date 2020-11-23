@@ -153,12 +153,12 @@ def history_graph(bot, update, chat_id: str = ""):
         # only show the last half year progress when sending notification
         x = x[-26:]
         y = y[-26:]
+        step = 1
     else:
         # only show 1 in step labels for readability
         step = int(len(x) / 50) + 1
-        x = [label if i % step == 0 else "" for i, label in enumerate(x)]
     plt.plot(x, y)
-    plt.xticks(x, rotation=90)
+    plt.xticks(range(0, len(x), step), x, rotation=90)
     plt.tick_params(axis='x', which='major', labelsize=8)
     plt.tight_layout()
     path_to_graph = os.path.join(counts_dir, chat_id + graph_file)
