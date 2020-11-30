@@ -13,7 +13,6 @@ import random
 import os
 import matplotlib.pyplot as plt
 from subprocess import Popen
-from sys import stderr
 from multiprocessing import Process
 
 # import Docker environment variables
@@ -226,7 +225,7 @@ def asd_counter(bot, update):
 
             except Exception as e:
                 bot.send_message(chat_id=castes_chat_id, text="asd_counter_bot si è sminchiato perché:\n" + str(e))
-                logger.error(e, file=stderr)
+                logger.error(e)
 
 
 def notify(bot):
@@ -305,7 +304,7 @@ def notify(bot):
 
         except Exception as e:
             bot.send_message(chat_id=castes_chat_id, text="asd_counter_bot si è sminchiato perché:\n" + str(e))
-            logger.info(e, file=stderr)
+            logger.error(e)
 
 
 def why(bot, update):
