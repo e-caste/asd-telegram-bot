@@ -284,7 +284,10 @@ def notify(bot):
                     # READ 2 LATEST RESULTS FROM DATABASE
                     with open(counts_dir + chat_id + db_file, 'r') as db:
                         past_period_asd_count = asd_count
-                        _period_before_that_asd_count = int(db.readlines()[-2].split("\t")[0])
+                        try:
+                            _period_before_that_asd_count = int(db.readlines()[-2].split("\t")[0])
+                        except ValueError:
+                            continue
 
                     stats = "\n\nQuesta settimana abbiamo totalizzato " + str(past_period_asd_count) + " asd"
                     diff = str(abs(past_period_asd_count - _period_before_that_asd_count))
