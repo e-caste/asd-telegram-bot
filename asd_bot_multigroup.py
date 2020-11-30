@@ -175,7 +175,7 @@ def asd_counter(bot, update):
     """
     if update.message.chat.type == chat.Chat.SUPERGROUP or \
             update.message.chat.type == chat.Chat.GROUP:
-        logger.info(str(datetime.now()) + " " + update.message.chat.title + " " + str(update.message.chat_id))
+        logger.info(update.message.chat.title + " " + str(update.message.chat_id))
 
         chat_id = str(update.message.chat_id)  # originally an int
 
@@ -215,7 +215,6 @@ def asd_counter(bot, update):
         if 0 < asd_increment < 10:
             try:
                 asd_count, date, week_start = get_current_count_content(chat_id)
-                logger.info(str(asd_count) + date)
                 with open(counts_dir + chat_id + cnt_file, 'w') as f:
                     asd_count += asd_increment
                     f.write(str(asd_count)
