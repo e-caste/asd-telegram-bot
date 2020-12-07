@@ -1,4 +1,5 @@
 FROM python:3.9-slim-buster
+RUN timedatectl set-timezone Europe/Rome
 RUN mkdir /bot /bot/logs /bot/counts
 COPY requirements.txt /bot
 WORKDIR /bot
