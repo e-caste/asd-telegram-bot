@@ -1,5 +1,9 @@
 FROM python:3.9-slim-buster
-RUN timedatectl set-timezone Europe/Rome
+ENV DEBIAN_FRONTEND=noninteractive
+RUN apt-get install -y --no-install-recommends tzdata \
+    && rm -rf /var/lib/apt/lists/*
+RUN ln -fs /usr/share/zoneinfo/Europe/Rome /etc/localtime \
+    && dpkg-reconfigure --frontend noninteractive tzdata
 RUN mkdir /bot /bot/logs /bot/counts
 COPY requirements.txt /bot
 WORKDIR /bot
