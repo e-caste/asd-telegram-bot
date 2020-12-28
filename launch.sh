@@ -1,7 +1,6 @@
 #!/bin/bash
 
 docker run --restart always \
-           -v "$PWD"/logs:/bot/logs \
            -v "$PWD"/counts:/bot/counts \
            -v "$PWD"/group_db.txt:/bot/group_db.txt \
            -e TOKEN="voleeeevi" \
