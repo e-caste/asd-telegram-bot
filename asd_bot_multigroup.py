@@ -4,7 +4,7 @@
 """
 
 import logging
-from telegram import bot, chat
+from telegram import bot, chat, TelegramError
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
 from datetime import datetime, timedelta
 from time import sleep
@@ -300,6 +300,9 @@ def notify(bot):
                         end = ", ossia " + str(diff) + " asd in meno rispetto alla scorsa settimana. D'oh!"
                     bot.send_message(chat_id=chat_id, text=reply + stats + end)
                     history_graph(bot, None, chat_id)
+
+        except TelegramError as te:
+            logger.warning("Skipping " + str(chat_id) + " because:\n" + str(te))
 
         except Exception as e:
             bot.send_message(chat_id=castes_chat_id, text="asd_counter_bot si è sminchiato perché:\n" + str(e))
