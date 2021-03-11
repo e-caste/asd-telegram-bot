@@ -146,6 +146,7 @@ def history_graph(bot, update, chat_id: str = ""):
                 y.append(int(line.split("\t")[0]))
             # skip groups that have wrongly formatted or no data
             except IndexError:
+                logger.warning(f"IndexError while reading {db_path} to make a graph")
                 return
 
     if not show_from_beginning:
