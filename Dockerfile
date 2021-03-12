@@ -1,6 +1,6 @@
 FROM python:3.9-slim-buster
 ENV DEBIAN_FRONTEND=noninteractive
-RUN apt-get install -y --no-install-recommends tzdata \
+RUN apt-get install -y --no-install-recommends tzdata fonts-humor-sans \
     && rm -rf /var/lib/apt/lists/*
 RUN ln -fs /usr/share/zoneinfo/Europe/Rome /etc/localtime \
     && dpkg-reconfigure --frontend noninteractive tzdata
