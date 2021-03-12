@@ -157,14 +157,15 @@ def history_graph(bot, update, chat_id: str = ""):
     else:
         # only show 1 in step labels for readability
         step = int(len(x) / 50) + 1
-    plt.plot(x, y)
-    plt.xticks(range(0, len(x), step), rotation=90)
-    plt.tick_params(axis='x', which='major', labelsize=8)
-    plt.tight_layout()
-    path_to_graph = os.path.join(counts_dir, chat_id + graph_file)
-    if os.path.exists(path_to_graph):
-        Popen(["rm", path_to_graph])
-    plt.savefig(path_to_graph, dpi=300, bbox_inches='tight')
+    with plt.xkcd():
+        plt.plot(x, y)
+        plt.xticks(range(0, len(x), step), rotation=90)
+        plt.tick_params(axis='x', which='major', labelsize=8)
+        plt.tight_layout()
+        path_to_graph = os.path.join(counts_dir, chat_id + graph_file)
+        if os.path.exists(path_to_graph):
+            Popen(["rm", path_to_graph])
+        plt.savefig(path_to_graph, dpi=300, bbox_inches='tight')
 
     bot.send_photo(chat_id=chat_id, photo=open(path_to_graph, 'rb'))
 
