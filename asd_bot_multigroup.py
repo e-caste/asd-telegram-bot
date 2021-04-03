@@ -317,7 +317,7 @@ def why(bot, update):
                      text='Why not? Asd\n'
                           '<a href="https://nonciclopedia.org/wiki/Asd">Assorbi il sapere ITALIANO</a>\n'
                           '<a href="https://www.urbandictionary.com/define.php?term=asd">Risucchia la knowledge MMERRICANA</a>\n'
-                          '<a href="https://www.youtube.com/watch?v=dQw4w9WgXcQ">Spiegazione ultramegadettagliata the best</a>\n',
+                          '<a href="https://weee.link/asd">Spiegazione ultramegadettagliata the best</a>\n',
                      parse_mode="HTML",
                      disable_web_page_preview=True)
 
