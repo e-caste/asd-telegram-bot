@@ -252,12 +252,12 @@ def notify(bot):
                 *_, start = get_current_count_content(first_chat_id)
 
             time_to_sleep = calculate_time_to_sleep(hour=start.hour, minute=0)
-            logger.info(str(time_to_sleep) + " daily")
+            logger.info(f"sleeping {time_to_sleep} daily")
             sleep(time_to_sleep)
 
             weekday = datetime.today().strftime("%A")
             if weekday != "Monday":
-                logger.info("Skipping notification on " + weekday)
+                logger.info(f"Skipping notification on {weekday}")
                 continue
 
             # this is because the message is set to be weekly
@@ -266,27 +266,22 @@ def notify(bot):
                 for chat_id in g_db.readlines():
                     chat_id = chat_id.split("\n")[0]  # ignore \n at end of line
                     # UPDATE asd_count VARIABLE AFTER SLEEPING
-                    asd_count, *_ = get_current_count_content(chat_id)
+                    asd_count, *_, lol_count = get_current_count_content(chat_id)
                     # UPDATE DATABASE - append weekly result
                     with open(counts_dir + chat_id + db_file, 'a') as db:
-                        db.write("\n" + str(asd_count)
-                                 + "\t"
-                                 + str(start)
-                                 + " - "
-                                 + str(start + td))
+                        db.write(f"\n{asd_count}\t{start} - {start + td}\t{lol_count}")
                     start += td
                     # UPDATE CURRENT COUNTER - overwrite and reset to 0
                     with open(counts_dir + chat_id + cnt_file, 'w') as f:
-                        f.write("0 "
-                                + str(start.year).zfill(4)
-                                + str(start.month).zfill(2)
-                                + str(start.day).zfill(2)
-                                + str(start.hour).zfill(2))
+                        f.write(f"0 {str(start.year).zfill(4)}{str(start.month).zfill(2)}"
+                                f"{str(start.day).zfill(2)}{str(start.hour).zfill(2)} 0")
                     # READ 2 LATEST RESULTS FROM DATABASE
                     with open(counts_dir + chat_id + db_file, 'r') as db:
                         past_period_asd_count = asd_count
+                        past_period_lol_count = lol_count
                         try:
                             _period_before_that_asd_count = int(db.readlines()[-2].split("\t")[0])
+                            _period_before_that_lol_count = int(db.readlines()[-2].split("\t")[-1])
                         except ValueError:
                             continue
 
