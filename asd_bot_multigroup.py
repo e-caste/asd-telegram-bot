@@ -92,9 +92,7 @@ def print_record(bot, update):
     record = -1
     with open(counts_dir + chat_id + db_file, 'r') as db:
         for line in db.readlines():
-            tmp = int(line.split("\t")[0])
-            if tmp > record:
-                record = tmp
+            record = max(record, int(line.split("\t")[0]))
     bot.send_message(chat_id=chat_id, text="Il nostro record attuale di asd settimanali è di "
                                            + str(record) + " asd. Asdate di più per batterlo!")
 
