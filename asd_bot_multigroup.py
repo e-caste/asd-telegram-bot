@@ -71,7 +71,11 @@ def get_current_count_content(chat_id: str):
                           month=int(date[4:6]),
                           day=int(date[6:8]),
                           hour=int(date[8:10]))
-    return asd_count, date, week_start
+    try:
+        lol_count = int(content[2])
+    except IndexError:
+        lol_count = 0
+    return asd_count, date, week_start, lol_count
 
 
 # Define a few command handlers. These usually take the two arguments bot and
@@ -207,25 +211,22 @@ def asd_counter(bot, update):
         # text and caption are mutually exclusive so at least one is None
         text = update.message.text
         caption = update.message.caption
-        if text is not None:
-            asd_increment = text.lower().count("asd")
-        elif caption is not None:
-            asd_increment = caption.lower().count("asd")
-        else:
-            asd_increment = 0
+        source = text or caption or ""
 
-        if 0 < asd_increment < 10:
+        asd_increment = source.lower().count("asd") + source.lower().count("æsd")
+        lol_increment = source.lower().count("lol") + source.lower().count("lil")
+
+        if 0 < (asd_increment + lol_increment) <= 20:
             try:
-                asd_count, date, week_start = get_current_count_content(chat_id)
+                asd_count, date, week_start, lol_count = get_current_count_content(chat_id)
                 with open(counts_dir + chat_id + cnt_file, 'w') as f:
                     asd_count += asd_increment
-                    f.write(str(asd_count)
-                            + " "
-                            + date)
-                logger.info("asd counter increased to " + str(asd_count))
+                    lol_count += lol_increment
+                    f.write(f"{asd_count} {date} {lol_count}")
+                logger.info(f"asd counter increased to {asd_count} &| lol counter increased to {lol_count}")
 
             except Exception as e:
-                bot.send_message(chat_id=castes_chat_id, text="asd_counter_bot si è sminchiato perché:\n" + str(e))
+                bot.send_message(chat_id=castes_chat_id, text=f"asd_counter_bot si è sminchiato perché:\n{e}")
                 logger.error(e)
 
 
