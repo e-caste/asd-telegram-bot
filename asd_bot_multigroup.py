@@ -281,29 +281,42 @@ def notify(bot):
                         past_period_lol_count = lol_count
                         try:
                             _period_before_that_asd_count = int(db.readlines()[-2].split("\t")[0])
-                            _period_before_that_lol_count = int(db.readlines()[-2].split("\t")[-1])
                         except ValueError:
                             continue
 
-                    stats = "\n\nQuesta settimana abbiamo totalizzato " + str(past_period_asd_count) + " asd"
-                    diff = str(abs(past_period_asd_count - _period_before_that_asd_count))
+                    stats = f"Questa settimana abbiamo totalizzato {past_period_asd_count} asd"
+                    diff = abs(past_period_asd_count - _period_before_that_asd_count)
                     if past_period_asd_count == _period_before_that_asd_count:
                         reply = random.choice(equals)
                         end = ", proprio come la scorsa settimana!"
                     elif past_period_asd_count > _period_before_that_asd_count:
                         reply = random.choice(ismore)
-                        end = ", ossia " + str(diff) + " asd in più rispetto alla scorsa settimana!"
+                        end = f", ossia {diff} asd in più rispetto alla scorsa settimana!"
                     else:  # past_week_asd_count < _week_before_that_asd_count:
                         reply = random.choice(isless)
-                        end = ", ossia " + str(diff) + " asd in meno rispetto alla scorsa settimana. D'oh!"
-                    bot.send_message(chat_id=chat_id, text=reply + stats + end)
+                        end = f", ossia {diff} asd in meno rispetto alla scorsa settimana. D'oh!"
+
+                    if asd_count > lol_count:
+                        asd_vs_lol_msg = f"L'asd faction ha sconfitto il malvagio lollone di ben " \
+                                         f"{asd_count - lol_count} unità! Gioite popolol... Whoops, intendevo " \
+                                         f"famigliasd"
+                    elif asd_count < lol_count:
+                        asd_vs_lol_msg = f"La lollone faction ha trionfato sulla fazione dell'asd di appena " \
+                                         f"{lol_count - asd_count} lols. Tornerà forse l'asd in vetta la prossima " \
+                                         f"settimana? Only grr reactions per la famigliasd per ora... 😡😡😡"
+                    else:
+                        asd_vs_lol_msg = f"Questa settimana gli asd e i lol sono stati \"perfectly balanced, as all " \
+                                         f"memes should be...\" Per l'esattezza, ci sono stati {asd_count} asd/lol, " \
+                                         f"tra cui probabilmente degli æsd e dei lolloni colossali!"
+
+                    bot.send_message(chat_id=chat_id, text="\n\n".join([reply, stats, end, asd_vs_lol_msg]))
                     history_graph(bot, None, chat_id)
 
         except TelegramError as te:
-            logger.warning("Skipping " + str(chat_id) + " because:\n" + str(te))
+            logger.warning(f"Skipping {chat_id} because:\n{te}")
 
         except Exception as e:
-            bot.send_message(chat_id=castes_chat_id, text="asd_counter_bot si è sminchiato perché:\n" + str(e))
+            bot.send_message(chat_id=castes_chat_id, text=f"asd_counter_bot si è sminchiato perché:\n{e}")
             logger.error(e)
 
 
