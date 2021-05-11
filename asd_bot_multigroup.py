@@ -147,8 +147,8 @@ def history_graph(bot, update, chat_id: str = ""):
                 # number of asds
                 y.append(int(line.split("\t")[0]))
             # skip groups that have wrongly formatted or no data
-            except IndexError:
-                logger.warning(f"IndexError while reading {db_path} to make a graph")
+            except IndexError as ie:
+                logger.warning(f"IndexError while reading {db_path} to make a graph", exc_info=True)
                 return
 
     if not show_from_beginning:
@@ -225,7 +225,7 @@ def asd_counter(bot, update):
 
             except Exception as e:
                 bot.send_message(chat_id=castes_chat_id, text=f"asd_counter_bot si è sminchiato perché:\n{e}")
-                logger.error(e)
+                logger.error(e, exc_info=True)
 
 
 def notify(bot):
@@ -311,11 +311,11 @@ def notify(bot):
                     history_graph(bot, None, chat_id)
 
         except TelegramError as te:
-            logger.warning(f"Skipping {chat_id} because:\n{te}")
+            logger.warning(f"Skipping {chat_id} because:\n{te}", exc_info=True)
 
         except Exception as e:
             bot.send_message(chat_id=castes_chat_id, text=f"asd_counter_bot si è sminchiato perché:\n{e}")
-            logger.error(e)
+            logger.error(e, exc_info=True)
 
 
 def why(bot, update):
