@@ -204,15 +204,15 @@ def asd_counter(bot, update):
                           )
             with open(counts_dir + chat_id + db_file, 'a') as db:
                 db.write("0\n0\n")  # at least 2 entries needed
-            logger.info("New group added to the database: " + chat_id)
+            logger.info(f"New group added to the database: {chat_id}")
 
         # text and caption are mutually exclusive so at least one is None
         text = update.message.text
         caption = update.message.caption
         source = text or caption or ""
 
-        asd_increment = source.lower().count("asd") + source.lower().count("æsd")
-        lol_increment = source.lower().count("lol") + source.lower().count("lil")
+        asd_increment = sum([source.lower().count(s) for s in ("asd", "æsd", "a.s.d", "a s d")])
+        lol_increment = sum([source.lower().count(s) for s in ("lol", "lil", "lel")])
 
         if 0 < (asd_increment + lol_increment) <= 20:
             try:
