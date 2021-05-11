@@ -221,7 +221,8 @@ def asd_counter(bot, update):
                     asd_count += asd_increment
                     lol_count += lol_increment
                     f.write(f"{asd_count} {date} {lol_count}")
-                logger.info(f"asd counter increased to {asd_count} &| lol counter increased to {lol_count}")
+                logger.info(" & ".join((f"asd counter increased to {asd_count}" if asd_count else "",
+                                        f"lol counter increased to {lol_count}" if lol_count else "")))
 
             except Exception as e:
                 bot.send_message(chat_id=castes_chat_id, text=f"asd_counter_bot si è sminchiato perché:\n{e}")
