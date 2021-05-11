@@ -247,7 +247,7 @@ def notify(bot):
             with open(group_db, 'r') as g_db:
                 # every chat_id has the same start date in this simplified version
                 first_chat_id = g_db.readlines()[0].split("\n")[0]
-                *_, start = get_current_count_content(first_chat_id)
+                *_, start, _ = get_current_count_content(first_chat_id)
 
             time_to_sleep = calculate_time_to_sleep(hour=start.hour, minute=0)
             logger.info(f"sleeping {time_to_sleep} daily")
