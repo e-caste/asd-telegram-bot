@@ -6,6 +6,7 @@
 import logging
 from telegram import bot, chat, TelegramError
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
+from telegram.error import BadRequest
 from datetime import datetime, timedelta
 from time import sleep
 from motivational_replies import *
@@ -262,57 +263,61 @@ def notify(bot):
             # this is because the message is set to be weekly
             td = timedelta(days=7)
             with open(group_db, 'r') as g_db:
-                for chat_id in g_db.readlines():
-                    chat_id = chat_id.split("\n")[0]  # ignore \n at end of line
-                    # UPDATE asd_count VARIABLE AFTER SLEEPING
-                    asd_count, *_, lol_count = get_current_count_content(chat_id)
-                    # UPDATE DATABASE - append weekly result
-                    with open(counts_dir + chat_id + db_file, 'a') as db:
-                        db.write(f"\n{asd_count}\t{start} - {start + td}\t{lol_count}")
-                    start += td
-                    # UPDATE CURRENT COUNTER - overwrite and reset to 0
-                    with open(counts_dir + chat_id + cnt_file, 'w') as f:
-                        f.write(f"0 {str(start.year).zfill(4)}{str(start.month).zfill(2)}"
-                                f"{str(start.day).zfill(2)}{str(start.hour).zfill(2)} 0")
-                    # READ 2 LATEST RESULTS FROM DATABASE
-                    with open(counts_dir + chat_id + db_file, 'r') as db:
-                        past_period_asd_count = asd_count
-                        past_period_lol_count = lol_count
+                try:
+                    for chat_id in g_db.readlines():
+                        chat_id = chat_id.split("\n")[0]  # ignore \n at end of line
+                        # UPDATE asd_count VARIABLE AFTER SLEEPING
+                        asd_count, *_, lol_count = get_current_count_content(chat_id)
+                        # UPDATE DATABASE - append weekly result
+                        with open(counts_dir + chat_id + db_file, 'a') as db:
+                            db.write(f"\n{asd_count}\t{start} - {start + td}\t{lol_count}")
+                        start += td
+                        # UPDATE CURRENT COUNTER - overwrite and reset to 0
+                        with open(counts_dir + chat_id + cnt_file, 'w') as f:
+                            f.write(f"0 {str(start.year).zfill(4)}{str(start.month).zfill(2)}"
+                                    f"{str(start.day).zfill(2)}{str(start.hour).zfill(2)} 0")
+                        # READ 2 LATEST RESULTS FROM DATABASE
+                        with open(counts_dir + chat_id + db_file, 'r') as db:
+                            past_period_asd_count = asd_count
+                            past_period_lol_count = lol_count
+                            try:
+                                _period_before_that_asd_count = int(db.readlines()[-2].split("\t")[0])
+                            except ValueError:
+                                continue
+
+                        stats = f"Questa settimana abbiamo totalizzato {past_period_asd_count} asd"
+                        diff = abs(past_period_asd_count - _period_before_that_asd_count)
+                        if past_period_asd_count == _period_before_that_asd_count:
+                            reply = random.choice(equals)
+                            end = ", proprio come la scorsa settimana!"
+                        elif past_period_asd_count > _period_before_that_asd_count:
+                            reply = random.choice(ismore)
+                            end = f", ossia {diff} asd in più rispetto alla scorsa settimana!"
+                        else:  # past_week_asd_count < _week_before_that_asd_count:
+                            reply = random.choice(isless)
+                            end = f", ossia {diff} asd in meno rispetto alla scorsa settimana. D'oh!"
+
+                        if asd_count > lol_count:
+                            asd_vs_lol_msg = f"L'asd faction ha sconfitto il malvagio lollone di ben " \
+                                             f"{asd_count - lol_count} unità! Gioite popolol... Whoops, intendevo " \
+                                             f"famigliasd"
+                        elif asd_count < lol_count:
+                            asd_vs_lol_msg = f"La lollone faction ha trionfato sulla fazione dell'asd di appena " \
+                                             f"{lol_count - asd_count} lols. Tornerà forse l'asd in vetta la prossima " \
+                                             f"settimana? Only grr reactions per la famigliasd per ora... 😡😡😡"
+                        else:
+                            asd_vs_lol_msg = f"Questa settimana gli asd e i lol sono stati \"perfectly balanced, as all " \
+                                             f"memes should be...\" Per l'esattezza, ci sono stati {asd_count} asd/lol, " \
+                                             f"tra cui probabilmente degli æsd e dei lolloni colossali!"
+
                         try:
-                            _period_before_that_asd_count = int(db.readlines()[-2].split("\t")[0])
-                        except ValueError:
-                            continue
+                            bot.send_message(chat_id=chat_id, text="\n\n".join([reply, stats, end, asd_vs_lol_msg]))
+                            history_graph(bot, None, chat_id)
+                        except BadRequest as br:
+                            logger.warning(f"Skipping {chat_id} because:\n{br}", exc_info=True)
 
-                    stats = f"Questa settimana abbiamo totalizzato {past_period_asd_count} asd"
-                    diff = abs(past_period_asd_count - _period_before_that_asd_count)
-                    if past_period_asd_count == _period_before_that_asd_count:
-                        reply = random.choice(equals)
-                        end = ", proprio come la scorsa settimana!"
-                    elif past_period_asd_count > _period_before_that_asd_count:
-                        reply = random.choice(ismore)
-                        end = f", ossia {diff} asd in più rispetto alla scorsa settimana!"
-                    else:  # past_week_asd_count < _week_before_that_asd_count:
-                        reply = random.choice(isless)
-                        end = f", ossia {diff} asd in meno rispetto alla scorsa settimana. D'oh!"
-
-                    if asd_count > lol_count:
-                        asd_vs_lol_msg = f"L'asd faction ha sconfitto il malvagio lollone di ben " \
-                                         f"{asd_count - lol_count} unità! Gioite popolol... Whoops, intendevo " \
-                                         f"famigliasd"
-                    elif asd_count < lol_count:
-                        asd_vs_lol_msg = f"La lollone faction ha trionfato sulla fazione dell'asd di appena " \
-                                         f"{lol_count - asd_count} lols. Tornerà forse l'asd in vetta la prossima " \
-                                         f"settimana? Only grr reactions per la famigliasd per ora... 😡😡😡"
-                    else:
-                        asd_vs_lol_msg = f"Questa settimana gli asd e i lol sono stati \"perfectly balanced, as all " \
-                                         f"memes should be...\" Per l'esattezza, ci sono stati {asd_count} asd/lol, " \
-                                         f"tra cui probabilmente degli æsd e dei lolloni colossali!"
-
-                    bot.send_message(chat_id=chat_id, text="\n\n".join([reply, stats, end, asd_vs_lol_msg]))
-                    history_graph(bot, None, chat_id)
-
-        except TelegramError as te:
-            logger.warning(f"Skipping {chat_id} because:\n{te}", exc_info=True)
+                except TelegramError as te:
+                    logger.warning(f"Skipping {chat_id} because:\n{te}", exc_info=True)
 
         except Exception as e:
             bot.send_message(chat_id=castes_chat_id, text=f"asd_counter_bot si è sminchiato perché:\n{e}")
