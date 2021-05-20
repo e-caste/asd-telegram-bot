@@ -311,7 +311,7 @@ def notify(bot):
                                              f"tra cui probabilmente degli æsd e dei lolloni colossali!"
 
                         try:
-                            bot.send_message(chat_id=chat_id, text="\n\n".join([reply, stats, end, asd_vs_lol_msg]))
+                            bot.send_message(chat_id=chat_id, text="\n\n".join([reply, stats + end, asd_vs_lol_msg]))
                             history_graph(bot, None, chat_id)
                         except BadRequest as br:
                             logger.warning(f"Skipping {chat_id} because:\n{br}", exc_info=True)
