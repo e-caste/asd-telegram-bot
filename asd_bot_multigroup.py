@@ -378,8 +378,6 @@ def main():
 
     updater_process.start()
     notify_process.start()
-    updater_process.join()
-    notify_process.join()
 
     # Run the bot until you press Ctrl-C or the process receives SIGINT,
     # SIGTERM or SIGABRT. This should be used most of the time, since
