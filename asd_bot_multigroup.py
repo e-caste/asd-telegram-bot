@@ -4,17 +4,19 @@
 """
 
 import logging
+from datetime import datetime, timedelta
+from time import sleep
+import random
+import os
+from subprocess import Popen
+from multiprocessing import Process
+
 from telegram import bot, chat, TelegramError
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
 from telegram.error import BadRequest
-from datetime import datetime, timedelta
-from time import sleep
-from motivational_replies import *
-import random
-import os
 import matplotlib.pyplot as plt
-from subprocess import Popen
-from multiprocessing import Process
+
+from motivational_replies import *
 
 # import Docker environment variables
 token = os.environ["TOKEN"]
@@ -24,11 +26,11 @@ group_db = os.environ["GROUP_DB"]
 db_file = os.environ["DB_FILE"]
 cnt_file = os.environ["CNT_FILE"]
 graph_file = os.environ["GRAPH_FILE"]
+DEBUG = os.environ.get("DEBUG")
 
 # Enable logging
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
                     level=logging.INFO)
-
 logger = logging.getLogger(__name__)
 
 
@@ -246,9 +248,10 @@ def notify(bot):
     """
     while True:
         try:
-            # first, sleep until 5am
-            time_to_sleep = calculate_time_to_sleep(hour=5, minute=0)
-            sleep(time_to_sleep)
+            if not DEBUG:
+                # first, sleep until 5am
+                time_to_sleep = calculate_time_to_sleep(hour=5, minute=0)
+                sleep(time_to_sleep)
 
             # then, sleep until desired hour - this should compute the correct hour
             # even for the days when the hour changes
@@ -257,9 +260,10 @@ def notify(bot):
                 first_chat_id = g_db.readlines()[0].split("\n")[0]
                 *_, start, _ = get_current_count_content(first_chat_id)
 
-            time_to_sleep = calculate_time_to_sleep(hour=start.hour, minute=0)
-            logger.info(f"sleeping {time_to_sleep} daily")
-            sleep(time_to_sleep)
+            if not DEBUG:
+                time_to_sleep = calculate_time_to_sleep(hour=start.hour, minute=0)
+                logger.info(f"sleeping {time_to_sleep} daily")
+                sleep(time_to_sleep)
 
             weekday = datetime.today().strftime("%A")
             if weekday != "Monday":
@@ -321,6 +325,9 @@ def notify(bot):
                             history_graph(bot, None, chat_id)
                         except BadRequest as br:
                             logger.warning(f"Skipping {chat_id} because:\n{br}", exc_info=True)
+
+                    if DEBUG:
+                        exit()
 
                 except TelegramError as te:
                     logger.warning(f"Skipping {chat_id} because:\n{te}", exc_info=True)
