@@ -232,7 +232,6 @@ def asd_counter(bot, update: Update):
             asd_increment = sum([source.lower().count(s) for s in ("asd", "æsd", "a.s.d", "a s d")])
             lol_increment = sum([source.lower().count(s) for s in ("lol", "lil", "lel", "læl", "lael")])
 
-        print(asd_increment, lol_increment)
         if 0 < (asd_increment + lol_increment) <= 20:
             try:
                 asd_count, date, week_start, lol_count = get_current_count_content(chat_id)
