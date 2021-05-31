@@ -11,8 +11,8 @@ import os
 from subprocess import Popen
 from multiprocessing import Process
 
-from telegram import bot, chat, TelegramError
-from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, Dispatcher
+from telegram import bot, chat, Update, TelegramError
+from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
 from telegram.error import BadRequest
 import matplotlib.pyplot as plt
 
@@ -83,14 +83,14 @@ def get_current_count_content(chat_id: str):
 
 # Define a few command handlers. These usually take the two arguments bot and
 # update. Error handlers also receive the raised TelegramError object in error.
-def start(bot, update):
+def start(bot, update: Update):
     """Send a message when the command /start is issued."""
     bot.send_message(chat_id=update.message.chat_id, text='Ciao ' + update.message.from_user.first_name +
                                                           ', benvenuto su asd bot! Conto solo gli asd dei gruppi'
                                                           ' dove sono presente, quindi a te ora non servo a nulla asd')
 
 
-def print_record(bot, update):
+def print_record(bot, update: Update):
     chat_id = str(update.message.chat_id)
     record = -1
     with open(counts_dir + chat_id + db_file, 'r') as db:
@@ -100,7 +100,7 @@ def print_record(bot, update):
                                            + str(record) + " asd. Asdate di più per batterlo!")
 
 
-def print_average(bot, update):
+def print_average(bot, update: Update):
     chat_id = str(update.message.chat_id)
     sum = 0
     cnt = 0
@@ -118,7 +118,7 @@ def print_average(bot, update):
                                            + str(avg) + " asd. Asdate di più per alzarla!")
 
 
-def print_total(bot, update):
+def print_total(bot, update: Update):
     chat_id = str(update.message.chat_id)
     sum = 0
     with open(counts_dir + chat_id + db_file, 'r') as db:
@@ -181,7 +181,7 @@ def history_graph(bot, update, chat_id: str = ""):
     bot.send_photo(chat_id=chat_id, photo=open(path_to_graph, 'rb'))
 
 
-def asd_counter(bot, update):
+def asd_counter(bot, update: Update):
     """
     this function increases the asd_count and writes it to disk
     when a new message on the filtered group contains at least 1 "asd"
@@ -215,14 +215,24 @@ def asd_counter(bot, update):
                 db.write("0\n0\n")  # at least 2 entries needed
             logger.info(f"New group added to the database: {chat_id}")
 
-        # text and caption are mutually exclusive so at least one is None
-        text = update.message.text
-        caption = update.message.caption
-        source = text or caption or ""
+        if update.message.sticker:
+            asd_increment, lol_increment = 0, 0
+            if update.message.sticker.set_name == "weeeopen" \
+                    and update.message.sticker.emoji in (
+                    "🤣",  # catalizzatore
+                    "📬",  # mail
+            ):
+                lol_increment = 1
+        else:
+            # text and caption are mutually exclusive so at least one is None
+            text = update.message.text
+            caption = update.message.caption
+            source = text or caption or ""
 
-        asd_increment = sum([source.lower().count(s) for s in ("asd", "æsd", "a.s.d", "a s d")])
-        lol_increment = sum([source.lower().count(s) for s in ("lol", "lil", "lel", "læl", "lael")])
+            asd_increment = sum([source.lower().count(s) for s in ("asd", "æsd", "a.s.d", "a s d")])
+            lol_increment = sum([source.lower().count(s) for s in ("lol", "lil", "lel", "læl", "lael")])
 
+        print(asd_increment, lol_increment)
         if 0 < (asd_increment + lol_increment) <= 20:
             try:
                 asd_count, date, week_start, lol_count = get_current_count_content(chat_id)
@@ -337,7 +347,7 @@ def notify(bot):
             logger.error(e, exc_info=True)
 
 
-def why(bot, update):
+def why(bot, update: Update):
     """Explain what asd means for our society and our future"""
     bot.send_message(chat_id=update.message.chat_id,
                      text='Why not? Asd\n'
@@ -348,12 +358,12 @@ def why(bot, update):
                      disable_web_page_preview=True)
 
 
-def help(bot, update):
+def help(bot, update: Update):
     """Send a message when the command /help is issued."""
     bot.send_message(chat_id=update.message.chat_id, text='https://youtu.be/cueulBxn1Fw')
 
 
-def error(bot, update):
+def error(bot, update: Update):
     """Log Errors caused by Updates."""
     logger.warning('Update "%s" caused error "%s"', bot, update.error)
 
@@ -377,8 +387,10 @@ def main():
     dp.add_handler(CommandHandler("why", why))
     dp.add_handler(CommandHandler("help", help))
     # for every message
-    dp.add_handler(MessageHandler((Filters.text | Filters.photo | Filters.video | Filters.document) & Filters.group,
-                                  asd_counter))
+    dp.add_handler(MessageHandler(
+        (Filters.text | Filters.photo | Filters.video | Filters.document | Filters.sticker) & Filters.group,
+        asd_counter
+    ))
 
     # log all errors
     dp.add_error_handler(error)
