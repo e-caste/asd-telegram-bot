@@ -138,15 +138,18 @@ def history_graph(bot, update, chat_id: str = ""):
     if not os.path.exists(db_path):
         bot.send_message(chat_id=chat_id, text="Non ci sono statistiche salvate per questa chat. "
                                                "Prova in un gruppo dove sono presente! Asd")
-    x = []
-    y = []
+    x, y_asd, y_lol = [], [], []
     with open(db_path, 'r') as db:
         for line in db.readlines()[2:]:  # skips first 2 lines which only contain a 0
             try:
                 # starting date
                 x.append(str(line.split("- ")[1].split(" ")[0]))
-                # number of asds
-                y.append(int(line.split("\t")[0]))
+                # number of asds and lols
+                y_asd.append(int(line.split("\t")[0]))
+                try:
+                    y_lol.append(int(line.split("\t")[2]))
+                except (IndexError, ValueError):
+                    y_lol.append(0)
             # skip groups that have wrongly formatted or no data
             except IndexError as ie:
                 logger.warning(f"IndexError while reading {db_path} to make a graph", exc_info=True)
@@ -155,13 +158,16 @@ def history_graph(bot, update, chat_id: str = ""):
     if not show_from_beginning:
         # only show the last half year progress when sending notification
         x = x[-26:]
-        y = y[-26:]
+        y_asd = y_asd[-26:]
+        y_lol = y_lol[-26:]
         step = 1
     else:
         # only show 1 in step labels for readability
         step = int(len(x) / 50) + 1
     with plt.xkcd():
-        plt.plot(x, y)
+        plt.plot(x, y_asd, label="ASDs")
+        plt.plot(x, y_lol, label="LOLs")
+        plt.legend()
         plt.xticks(range(0, len(x), step), rotation=90)
         plt.tick_params(axis='x', which='major', labelsize=8)
         plt.tight_layout()
