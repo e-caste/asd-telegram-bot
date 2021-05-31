@@ -12,7 +12,7 @@ from subprocess import Popen
 from multiprocessing import Process
 
 from telegram import bot, chat, TelegramError
-from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
+from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, Dispatcher
 from telegram.error import BadRequest
 import matplotlib.pyplot as plt
 
@@ -165,10 +165,10 @@ def history_graph(bot, update, chat_id: str = ""):
         step = 1
     else:
         # only show 1 in step labels for readability
-        step = int(len(x) / 50) + 1
+        step = (len(x) // 50) + 1
     with plt.xkcd():
-        plt.plot(x, y_asd, label="ASDs")
-        plt.plot(x, y_lol, label="LOLs")
+        plt.plot(x, y_asd, label="ASDs", linestyle="-")
+        plt.plot(x, y_lol, label="LOLs", linestyle="--")
         plt.legend()
         plt.xticks(range(0, len(x), step), rotation=90)
         plt.tick_params(axis='x', which='major', labelsize=8)
