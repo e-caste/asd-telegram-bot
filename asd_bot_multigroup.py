@@ -219,7 +219,7 @@ def asd_counter(bot, update):
         source = text or caption or ""
 
         asd_increment = sum([source.lower().count(s) for s in ("asd", "æsd", "a.s.d", "a s d")])
-        lol_increment = sum([source.lower().count(s) for s in ("lol", "lil", "lel")])
+        lol_increment = sum([source.lower().count(s) for s in ("lol", "lil", "lel", "læl", "lael")])
 
         if 0 < (asd_increment + lol_increment) <= 20:
             try:
