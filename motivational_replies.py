@@ -46,7 +46,17 @@ ismore = [
     "Asd Zwei Polizei\n"
     "Drei Vier Grenadier",
 
-    "They see me asdin'...\nThey hatin'..."
+    "They see me asdin'...\nThey hatin'...",
+    
+    "Mi è salito un asdamento incredibile, vedendo tutti questi asd",
+    
+    "Abbiamo raggiunto l'apice dell'evoluzione umana, l'apoteosi assoluta dell'asdamento, una vetta insuperabile piena di asd",
+    
+    "È con viva e vibrante soddisfazione che vi annuncio le statistiche sull'asd di questa settimana.",
+    
+    "Il mio asd è immenso, cosmico, trascendente, ma il vostro asdamento non è stato da meno!",
+    
+    "La scorsa settimana avete veramente superato voi stessə, quanto a(s)d asdamento!",
 ]
 
 isless = [
@@ -71,12 +81,20 @@ isless = [
 
     "Asd asd... you shot me down...\nAsd asd... I hit the ground...\nAsd asd...",
 
+    "La gravità della situazione è immensa: l'asd è diminuito!",
+    
+    "Raga... non volevo arrivare al punto di dirvelo, ma devo dirvelo...",
+    
+    "Oh no, OH NO, non ditemelo, lo so già: è diminuito!"
+    
     # "Cari WEEEini, care WEEEine,\nState asdando troppo poco. Asdate di più.\n"
     # "Cordiali saluti,\nIl bot dell'asd"
 ]
 
 equals = [
     "Incredibile ma vero, avete asdato esattamente quanto la scorsa settimana!\n"
-    "C'era esattamente una probabilità su 69420, pazzesco!"
+    "C'era esattamente una probabilità su 69420, pazzesco!",
     # "Andate a festeggiare saldando un po' di condensatori!"
+    
+    "Oh no, è successa una situazione: il numero di asd è esattamente pari alla scorsa settimana!",
 ]
