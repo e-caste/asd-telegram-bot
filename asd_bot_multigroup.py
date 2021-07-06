@@ -166,6 +166,7 @@ def history_graph(bot, update, chat_id: str = ""):
     else:
         # only show 1 in step labels for readability
         step = (len(x) // 50) + 1
+    
     with plt.xkcd():
         plt.plot(x, y_asd, label="ASDs", linestyle="-")
         plt.plot(x, y_lol, label="LOLs", linestyle="--")
@@ -177,6 +178,9 @@ def history_graph(bot, update, chat_id: str = ""):
         if os.path.exists(path_to_graph):
             Popen(["rm", path_to_graph])
         plt.savefig(path_to_graph, dpi=300, bbox_inches='tight')
+        # close figure
+        plt.close()
+        
 
     bot.send_photo(chat_id=chat_id, photo=open(path_to_graph, 'rb'))
 
