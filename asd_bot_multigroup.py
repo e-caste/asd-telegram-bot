@@ -385,7 +385,11 @@ def main():
     job_queue.run_repeating(notify,
                             interval=timedelta(weeks=1),
                             first=run_first_datetime)
-    # print(job_queue.get_jobs_by_name("notify")[0].next_t.astimezone(tz.gettz("Europe/Rome")))
+    try:
+        logger.info(f"Next notify job will run at (timezone is Europe/Rome): "
+                    f"{job_queue.get_jobs_by_name('notify')[0].next_t.astimezone(tz.gettz('Europe/Rome'))}")
+    except IndexError:
+        logger.warning("No job with name notify found.")
 
     # Run the bot until you press Ctrl-C or the process receives SIGINT,
     # SIGTERM or SIGABRT. This should be used most of the time, since
