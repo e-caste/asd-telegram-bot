@@ -12,7 +12,7 @@ from subprocess import Popen
 from multiprocessing import Process
 
 from telegram import bot, chat, Update, TelegramError
-from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
+from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, CallbackContext
 from telegram.error import BadRequest
 import matplotlib.pyplot as plt
 
@@ -83,24 +83,24 @@ def get_current_count_content(chat_id: str):
 
 # Define a few command handlers. These usually take the two arguments bot and
 # update. Error handlers also receive the raised TelegramError object in error.
-def start(bot, update: Update):
+def start(update: Update, context: CallbackContext) -> None:
     """Send a message when the command /start is issued."""
-    bot.send_message(chat_id=update.message.chat_id, text='Ciao ' + update.message.from_user.first_name +
+    context.bot.send_message(chat_id=update.message.chat_id, text='Ciao ' + update.message.from_user.first_name +
                                                           ', benvenuto su asd bot! Conto solo gli asd dei gruppi'
                                                           ' dove sono presente, quindi a te ora non servo a nulla asd')
 
 
-def print_record(bot, update: Update):
+def print_record(update: Update, context: CallbackContext) -> None:
     chat_id = str(update.message.chat_id)
     record = -1
     with open(counts_dir + chat_id + db_file, 'r') as db:
         for line in db.readlines():
             record = max(record, int(line.split("\t")[0]))
-    bot.send_message(chat_id=chat_id, text="Il nostro record attuale di asd settimanali è di "
+    context.bot.send_message(chat_id=chat_id, text="Il nostro record attuale di asd settimanali è di "
                                            + str(record) + " asd. Asdate di più per batterlo!")
 
 
-def print_average(bot, update: Update):
+def print_average(update: Update, context: CallbackContext) -> None:
     chat_id = str(update.message.chat_id)
     sum = 0
     cnt = 0
@@ -114,11 +114,11 @@ def print_average(bot, update: Update):
         avg = 0  # avoid dividing by 0
     else:
         avg = round(float(sum / cnt), 2)
-    bot.send_message(chat_id=chat_id, text="La nostra media attuale di asd settimanali è di "
+    context.bot.send_message(chat_id=chat_id, text="La nostra media attuale di asd settimanali è di "
                                            + str(avg) + " asd. Asdate di più per alzarla!")
 
 
-def print_total(bot, update: Update):
+def print_total(update: Update, context: CallbackContext) -> None:
     chat_id = str(update.message.chat_id)
     sum = 0
     with open(counts_dir + chat_id + db_file, 'r') as db:
@@ -126,11 +126,11 @@ def print_total(bot, update: Update):
             sum += int(line.split("\t")[0])
     current_count, *_ = get_current_count_content(chat_id)
     sum += current_count
-    bot.send_message(chat_id=chat_id, text="Il nostro totale attuale di asd è di "
+    context.bot.send_message(chat_id=chat_id, text="Il nostro totale attuale di asd è di "
                                            + str(sum) + " asd.")
 
 
-def history_graph(bot, update, chat_id: str = ""):
+def history_graph(update: Update, context: CallbackContext, chat_id: str = "") -> None:
     # the function has been invoked by a user, otherwise it has been invoked by notify()
     show_from_beginning = chat_id == ""
     if show_from_beginning:
@@ -138,7 +138,7 @@ def history_graph(bot, update, chat_id: str = ""):
 
     db_path = os.path.join(counts_dir, chat_id + db_file)
     if not os.path.exists(db_path):
-        bot.send_message(chat_id=chat_id, text="Non ci sono statistiche salvate per questa chat. "
+        context.bot.send_message(chat_id=chat_id, text="Non ci sono statistiche salvate per questa chat. "
                                                "Prova in un gruppo dove sono presente! Asd")
     x, y_asd, y_lol = [], [], []
     with open(db_path, 'r') as db:
@@ -182,10 +182,10 @@ def history_graph(bot, update, chat_id: str = ""):
         plt.close()
         
 
-    bot.send_photo(chat_id=chat_id, photo=open(path_to_graph, 'rb'))
+    context.bot.send_photo(chat_id=chat_id, photo=open(path_to_graph, 'rb'))
 
 
-def asd_counter(bot, update: Update):
+def asd_counter(update: Update, context: CallbackContext) -> None:
     """
     this function increases the asd_count and writes it to disk
     when a new message on the filtered group contains at least 1 "asd"
@@ -247,7 +247,7 @@ def asd_counter(bot, update: Update):
                                                      f"lol counter increased to {lol_count}" if lol_increment else ""])))
 
             except Exception as e:
-                bot.send_message(chat_id=castes_chat_id, text=f"asd_counter_bot si è sminchiato perché:\n{e}")
+                context.bot.send_message(chat_id=castes_chat_id, text=f"asd_counter_bot si è sminchiato perché:\n{e}")
                 logger.error(e, exc_info=True)
 
 
@@ -334,7 +334,7 @@ def notify(bot):
                                              f"tra cui probabilmente degli æsd e dei lolloni colossali!"
 
                         try:
-                            bot.send_message(chat_id=chat_id, text="\n\n".join([reply, stats + end, asd_vs_lol_msg]))
+                            context.bot.send_message(chat_id=chat_id, text="\n\n".join([reply, stats + end, asd_vs_lol_msg]))
                             history_graph(bot, None, chat_id)
                         except BadRequest as br:
                             logger.warning(f"Skipping {chat_id} because:\n{br}", exc_info=True)
@@ -346,13 +346,13 @@ def notify(bot):
                     logger.warning(f"Skipping {chat_id} because:\n{te}", exc_info=True)
 
         except Exception as e:
-            bot.send_message(chat_id=castes_chat_id, text=f"asd_counter_bot si è sminchiato perché:\n{e}")
+            context.bot.send_message(chat_id=castes_chat_id, text=f"asd_counter_bot si è sminchiato perché:\n{e}")
             logger.error(e, exc_info=True)
 
 
-def why(bot, update: Update):
+def why(update: Update, context: CallbackContext) -> None:
     """Explain what asd means for our society and our future"""
-    bot.send_message(chat_id=update.message.chat_id,
+    context.bot.send_message(chat_id=update.message.chat_id,
                      text='Why not? Asd\n'
                           '<a href="https://nonciclopedia.org/wiki/Asd">Assorbi il sapere ITALIANO</a>\n'
                           '<a href="https://www.urbandictionary.com/define.php?term=asd">Risucchia la knowledge MMERRICANA</a>\n'
@@ -361,12 +361,12 @@ def why(bot, update: Update):
                      disable_web_page_preview=True)
 
 
-def help(bot, update: Update):
+def help(update: Update, context: CallbackContext) -> None:
     """Send a message when the command /help is issued."""
-    bot.send_message(chat_id=update.message.chat_id, text='https://youtu.be/cueulBxn1Fw')
+    context.bot.send_message(chat_id=update.message.chat_id, text='https://youtu.be/cueulBxn1Fw')
 
 
-def error(bot, update: Update):
+def error(update: Update, context: CallbackContext) -> None:
     """Log Errors caused by Updates."""
     logger.warning('Update "%s" caused error "%s"', bot, update.error)
 
@@ -402,10 +402,10 @@ def main():
     updater.start_polling()
 
     updater_process = Process(target=updater.idle)
-    notify_process = Process(target=notify, args=(bot.Bot(token),))  # comma needed to make tuple
+    # notify_process = Process(target=notify, args=(bot.Bot(token),))  # comma needed to make tuple
 
     updater_process.start()
-    notify_process.start()
+    # notify_process.start()
 
     # Run the bot until you press Ctrl-C or the process receives SIGINT,
     # SIGTERM or SIGABRT. This should be used most of the time, since
