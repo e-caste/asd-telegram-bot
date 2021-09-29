@@ -343,7 +343,7 @@ def help(update: Update, context: CallbackContext) -> None:
 
 def error(update: Update, context: CallbackContext) -> None:
     """Log Errors caused by Updates."""
-    logger.warning('Update "%s" caused error "%s"', bot, update.error)
+    logger.warning('Update "%s" caused error "%s"', update, context.error)
 
 
 def main():
