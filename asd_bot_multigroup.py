@@ -5,14 +5,15 @@
 
 import logging
 from datetime import datetime, timedelta
-from time import sleep
+import calendar
+from dateutil import tz
 import random
 import os
 from subprocess import Popen
-from multiprocessing import Process
+from typing import Union
 
 from telegram import bot, chat, Update, TelegramError
-from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, CallbackContext
+from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, CallbackContext, JobQueue
 from telegram.error import BadRequest
 import matplotlib.pyplot as plt
 
@@ -127,10 +128,10 @@ def print_total(update: Update, context: CallbackContext) -> None:
     current_count, *_ = get_current_count_content(chat_id)
     sum += current_count
     context.bot.send_message(chat_id=chat_id, text="Il nostro totale attuale di asd è di "
-                                           + str(sum) + " asd.")
+                                                   + str(sum) + " asd.")
 
 
-def history_graph(update: Update, context: CallbackContext, chat_id: str = "") -> None:
+def history_graph(update: Union[Update, None], context: CallbackContext, chat_id: str = "") -> None:
     # the function has been invoked by a user, otherwise it has been invoked by notify()
     show_from_beginning = chat_id == ""
     if show_from_beginning:
@@ -139,7 +140,7 @@ def history_graph(update: Update, context: CallbackContext, chat_id: str = "") -
     db_path = os.path.join(counts_dir, chat_id + db_file)
     if not os.path.exists(db_path):
         context.bot.send_message(chat_id=chat_id, text="Non ci sono statistiche salvate per questa chat. "
-                                               "Prova in un gruppo dove sono presente! Asd")
+                                                       "Prova in un gruppo dove sono presente! Asd")
     x, y_asd, y_lol = [], [], []
     with open(db_path, 'r') as db:
         for line in db.readlines()[2:]:  # skips first 2 lines which only contain a 0
@@ -180,7 +181,6 @@ def history_graph(update: Update, context: CallbackContext, chat_id: str = "") -
         plt.savefig(path_to_graph, dpi=300, bbox_inches='tight')
         # close figure
         plt.close()
-        
 
     context.bot.send_photo(chat_id=chat_id, photo=open(path_to_graph, 'rb'))
 
@@ -251,103 +251,78 @@ def asd_counter(update: Update, context: CallbackContext) -> None:
                 logger.error(e, exc_info=True)
 
 
-def notify(bot):
-    """
-    this function is called at the launch of the script in the main function as a separate process
-    this function is NOT to be called by a Message or Command Handler
-    we use time.sleep() with the number of seconds until the day after the date found in current_count.txt
-    at the same hour, until it's Monday
-    then notify group with a random phrase based on asd increase or decrease
-    """
-    while True:
-        try:
-            if not DEBUG:
-                # first, sleep until 5am
-                time_to_sleep = calculate_time_to_sleep(hour=5, minute=0)
-                sleep(time_to_sleep)
+def notify(context: CallbackContext) -> None:
+    try:
+        with open(group_db, 'r') as g_db:
+            # every chat_id has the same start date in this simplified version
+            first_chat_id = g_db.readlines()[0].split("\n")[0]
+            *_, start, _ = get_current_count_content(first_chat_id)
 
-            # then, sleep until desired hour - this should compute the correct hour
-            # even for the days when the hour changes
-            with open(group_db, 'r') as g_db:
-                # every chat_id has the same start date in this simplified version
-                first_chat_id = g_db.readlines()[0].split("\n")[0]
-                *_, start, _ = get_current_count_content(first_chat_id)
-
-            if not DEBUG:
-                time_to_sleep = calculate_time_to_sleep(hour=start.hour, minute=0)
-                logger.info(f"sleeping {time_to_sleep} daily")
-                sleep(time_to_sleep)
-
-            weekday = datetime.today().strftime("%A")
-            if weekday != "Monday":
-                logger.info(f"Skipping notification on {weekday}")
-                continue
-
-            # this is because the message is set to be weekly
-            td = timedelta(days=7)
-            with open(group_db, 'r') as g_db:
-                try:
-                    for chat_id in g_db.readlines():
-                        chat_id = chat_id.split("\n")[0]  # ignore \n at end of line
-                        # UPDATE asd_count VARIABLE AFTER SLEEPING
-                        asd_count, *_, lol_count = get_current_count_content(chat_id)
-                        # UPDATE DATABASE - append weekly result
-                        with open(counts_dir + chat_id + db_file, 'a') as db:
-                            db.write(f"\n{asd_count}\t{start} - {start + td}\t{lol_count}")
-                        start += td
-                        # UPDATE CURRENT COUNTER - overwrite and reset to 0
-                        with open(counts_dir + chat_id + cnt_file, 'w') as f:
-                            f.write(f"0 {str(start.year).zfill(4)}{str(start.month).zfill(2)}"
-                                    f"{str(start.day).zfill(2)}{str(start.hour).zfill(2)} 0")
-                        # READ 2 LATEST RESULTS FROM DATABASE
-                        with open(counts_dir + chat_id + db_file, 'r') as db:
-                            past_period_asd_count = asd_count
-                            past_period_lol_count = lol_count
-                            try:
-                                _period_before_that_asd_count = int(db.readlines()[-2].split("\t")[0])
-                            except ValueError:
-                                continue
-
-                        stats = f"Questa settimana abbiamo totalizzato {past_period_asd_count} asd"
-                        diff = abs(past_period_asd_count - _period_before_that_asd_count)
-                        if past_period_asd_count == _period_before_that_asd_count:
-                            reply = random.choice(equals)
-                            end = ", proprio come la scorsa settimana!"
-                        elif past_period_asd_count > _period_before_that_asd_count:
-                            reply = random.choice(ismore)
-                            end = f", ossia {diff} asd in più rispetto alla scorsa settimana!"
-                        else:  # past_week_asd_count < _week_before_that_asd_count:
-                            reply = random.choice(isless)
-                            end = f", ossia {diff} asd in meno rispetto alla scorsa settimana. D'oh!"
-
-                        if asd_count > lol_count:
-                            asd_vs_lol_msg = f"L'asd faction ha sconfitto il malvagio lollone di ben " \
-                                             f"{asd_count - lol_count} unità! Gioite popolol... Whoops, intendevo " \
-                                             f"famigliasd"
-                        elif asd_count < lol_count:
-                            asd_vs_lol_msg = f"La lollone faction ha trionfato sulla fazione dell'asd di appena " \
-                                             f"{lol_count - asd_count} lols. Tornerà forse l'asd in vetta la prossima " \
-                                             f"settimana? Only grr reactions per la famigliasd per ora... 😡😡😡"
-                        else:
-                            asd_vs_lol_msg = f"Questa settimana gli asd e i lol sono stati \"perfectly balanced, as all " \
-                                             f"memes should be...\" Per l'esattezza, ci sono stati {asd_count} asd/lol, " \
-                                             f"tra cui probabilmente degli æsd e dei lolloni colossali!"
-
+        # this is because the message is set to be weekly
+        td = timedelta(days=7)
+        with open(group_db, 'r') as g_db:
+            try:
+                for chat_id in g_db.readlines():
+                    chat_id = chat_id.split("\n")[0]  # ignore \n at end of line
+                    # UPDATE asd_count VARIABLE AFTER SLEEPING
+                    asd_count, *_, lol_count = get_current_count_content(chat_id)
+                    # UPDATE DATABASE - append weekly result
+                    with open(counts_dir + chat_id + db_file, 'a') as db:
+                        db.write(f"\n{asd_count}\t{start} - {start + td}\t{lol_count}")
+                    start += td
+                    # UPDATE CURRENT COUNTER - overwrite and reset to 0
+                    with open(counts_dir + chat_id + cnt_file, 'w') as f:
+                        f.write(f"0 {str(start.year).zfill(4)}{str(start.month).zfill(2)}"
+                                f"{str(start.day).zfill(2)}{str(start.hour).zfill(2)} 0")
+                    # READ 2 LATEST RESULTS FROM DATABASE
+                    with open(counts_dir + chat_id + db_file, 'r') as db:
+                        past_period_asd_count = asd_count
+                        past_period_lol_count = lol_count
                         try:
-                            context.bot.send_message(chat_id=chat_id, text="\n\n".join([reply, stats + end, asd_vs_lol_msg]))
-                            history_graph(bot, None, chat_id)
-                        except BadRequest as br:
-                            logger.warning(f"Skipping {chat_id} because:\n{br}", exc_info=True)
+                            _period_before_that_asd_count = int(db.readlines()[-2].split("\t")[0])
+                        except ValueError:
+                            continue
 
-                    if DEBUG:
-                        exit()
+                    stats = f"Questa settimana abbiamo totalizzato {past_period_asd_count} asd"
+                    diff = abs(past_period_asd_count - _period_before_that_asd_count)
+                    if past_period_asd_count == _period_before_that_asd_count:
+                        reply = random.choice(equals)
+                        end = ", proprio come la scorsa settimana!"
+                    elif past_period_asd_count > _period_before_that_asd_count:
+                        reply = random.choice(ismore)
+                        end = f", ossia {diff} asd in più rispetto alla scorsa settimana!"
+                    else:  # past_week_asd_count < _week_before_that_asd_count:
+                        reply = random.choice(isless)
+                        end = f", ossia {diff} asd in meno rispetto alla scorsa settimana. D'oh!"
 
-                except TelegramError as te:
-                    logger.warning(f"Skipping {chat_id} because:\n{te}", exc_info=True)
+                    if asd_count > lol_count:
+                        asd_vs_lol_msg = f"L'asd faction ha sconfitto il malvagio lollone di ben " \
+                                         f"{asd_count - lol_count} unità! Gioite popolol... Whoops, intendevo " \
+                                         f"famigliasd"
+                    elif asd_count < lol_count:
+                        asd_vs_lol_msg = f"La lollone faction ha trionfato sulla fazione dell'asd di appena " \
+                                         f"{lol_count - asd_count} lols. Tornerà forse l'asd in vetta la prossima " \
+                                         f"settimana? Only grr reactions per la famigliasd per ora... 😡😡😡"
+                    else:
+                        asd_vs_lol_msg = f"Questa settimana gli asd e i lol sono stati \"perfectly balanced, as all " \
+                                         f"memes should be...\" Per l'esattezza, ci sono stati {asd_count} asd/lol, " \
+                                         f"tra cui probabilmente degli æsd e dei lolloni colossali!"
 
-        except Exception as e:
-            context.bot.send_message(chat_id=castes_chat_id, text=f"asd_counter_bot si è sminchiato perché:\n{e}")
-            logger.error(e, exc_info=True)
+                    try:
+                        context.bot.send_message(chat_id=chat_id, text="\n\n".join([reply, stats + end, asd_vs_lol_msg]))
+                        history_graph(None, context, chat_id)
+                    except BadRequest as br:
+                        logger.warning(f"Skipping {chat_id} because:\n{br}", exc_info=True)
+
+                if DEBUG:
+                    exit()
+
+            except TelegramError as te:
+                logger.warning(f"Skipping {chat_id} because:\n{te}", exc_info=True)
+
+    except Exception as e:
+        context.bot.send_message(chat_id=castes_chat_id, text=f"asd_counter_bot si è sminchiato perché:\n{e}")
+        logger.error(e, exc_info=True)
 
 
 def why(update: Update, context: CallbackContext) -> None:
@@ -374,9 +349,8 @@ def error(update: Update, context: CallbackContext) -> None:
 def main():
     """Start the bot."""
     # Create the Updater and pass it your bot's token.
-    # Make sure to set use_context=True to use the new context based callbacks
-    # Post version 12 this will no longer be necessary
     updater = Updater(token)
+    job_queue: JobQueue = updater.job_queue
 
     # Get the dispatcher to register handlers
     dp = updater.dispatcher
@@ -401,15 +375,22 @@ def main():
     # Start the Bot
     updater.start_polling()
 
-    updater_process = Process(target=updater.idle)
-    # notify_process = Process(target=notify, args=(bot.Bot(token),))  # comma needed to make tuple
-
-    updater_process.start()
-    # notify_process.start()
+    # run weekly group notification job
+    next_monday = datetime.today() + timedelta((calendar.MONDAY - datetime.today().weekday()) % 7)
+    run_first_datetime = datetime(year=next_monday.year,
+                                  month=next_monday.month,
+                                  day=next_monday.day,
+                                  hour=9,
+                                  tzinfo=tz.gettz("Europe/Rome"))
+    job_queue.run_repeating(notify,
+                            interval=timedelta(weeks=1),
+                            first=run_first_datetime)
+    # print(job_queue.get_jobs_by_name("notify")[0].next_t.astimezone(tz.gettz("Europe/Rome")))
 
     # Run the bot until you press Ctrl-C or the process receives SIGINT,
     # SIGTERM or SIGABRT. This should be used most of the time, since
     # start_polling() is non-blocking and will stop the bot gracefully.
+    updater.idle()
 
 
 if __name__ == '__main__':
