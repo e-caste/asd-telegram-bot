@@ -296,13 +296,9 @@ def notify(context: CallbackContext) -> None:
                         end = f", ossia {diff} asd in meno rispetto alla scorsa settimana. D'oh!"
 
                     if asd_count > lol_count:
-                        asd_vs_lol_msg = f"L'asd faction ha sconfitto il malvagio lollone di ben " \
-                                         f"{asd_count - lol_count} unità! Gioite popolol... Whoops, intendevo " \
-                                         f"famigliasd"
+                        asd_vs_lol_msg = random.choice(asd_gt_lol).format(asd_count - lol_count)
                     elif asd_count < lol_count:
-                        asd_vs_lol_msg = f"La lollone faction ha trionfato sulla fazione dell'asd di appena " \
-                                         f"{lol_count - asd_count} lols. Tornerà forse l'asd in vetta la prossima " \
-                                         f"settimana? Only grr reactions per la famigliasd per ora... 😡😡😡"
+                        asd_vs_lol_msg = random.choice(asd_lt_lol).format(lol_count - asd_count)
                     else:
                         asd_vs_lol_msg = f"Questa settimana gli asd e i lol sono stati \"perfectly balanced, as all " \
                                          f"memes should be...\" Per l'esattezza, ci sono stati {asd_count} asd/lol, " \
@@ -328,12 +324,12 @@ def notify(context: CallbackContext) -> None:
 def why(update: Update, context: CallbackContext) -> None:
     """Explain what asd means for our society and our future"""
     context.bot.send_message(chat_id=update.message.chat_id,
-                     text='Why not? Asd\n'
-                          '<a href="https://nonciclopedia.org/wiki/Asd">Assorbi il sapere ITALIANO</a>\n'
-                          '<a href="https://www.urbandictionary.com/define.php?term=asd">Risucchia la knowledge MMERRICANA</a>\n'
-                          '<a href="https://weee.link/asd">Spiegazione ultramegadettagliata the best</a>\n',
-                     parse_mode="HTML",
-                     disable_web_page_preview=True)
+                             text='Why not? Asd\n'
+                                  '<a href="https://nonciclopedia.org/wiki/Asd">Assorbi il sapere ITALIANO</a>\n'
+                                  '<a href="https://www.urbandictionary.com/define.php?term=asd">Risucchia la knowledge MMERRICANA</a>\n'
+                                  '<a href="https://weee.link/asd">Spiegazione ultramegadettagliata the best</a>\n',
+                             parse_mode="HTML",
+                             disable_web_page_preview=True)
 
 
 def help(update: Update, context: CallbackContext) -> None:
