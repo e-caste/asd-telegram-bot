@@ -98,3 +98,21 @@ equals = [
     
     "Oh no, è successa una situazione: il numero di asd è esattamente pari alla scorsa settimana!",
 ]
+
+# each sentence must contain one occurrence of {}
+asd_gt_lol = [
+    "L'asd faction ha sconfitto il malvagio lollone di ben {} unità! Gioite popolol... Whoops, intendevo famigliasd",
+    "ASDASDASD > LOLOLOL.\nAlmeno questa settimana, asd è stato usato {} volte più di lol",
+    "Taaaaaaaake ooooooooon aaaaaaaaasd... Taaaaake {} aaaaaaaasds (more than lols)",
+    "Votate chi ha vinto questa settimana tra asd e lol secondo voi:\nLOL [69%] | ASD [420%]\nBeh che dire, l'asd ha"
+    "trionfato di {} volte!",
+]
+
+# each sentence must contain one occurrence of {}
+asd_lt_lol = [
+    "La lollone faction ha trionfato sulla fazione dell'asd di appena {} lols. Tornerà forse l'asd in vetta la "
+    "prossima settimana? Only grr reactions per la famigliasd per ora... 😡😡😡",
+    "LOLLONE (ben {} volte in più di asdone, questa settimana)",
+    "🅱️ruh moment: ha prevalso il lol di {} unità sull'asd.",
+    "Heyyyyyyyyyyyyyyyyy ci son stati {} lol in più di asd",
+]
