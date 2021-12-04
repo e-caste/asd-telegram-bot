@@ -233,8 +233,8 @@ def asd_counter(update: Update, context: CallbackContext) -> None:
             caption = update.message.caption
             source = text or caption or ""
 
-            asd_increment = sum([source.lower().count(s) for s in ("asd", "æsd", "a.s.d", "a s d")])
-            lol_increment = sum([source.lower().count(s) for s in ("lol", "lil", "lel", "læl", "lael")])
+            asd_increment = sum([source.lower().count(s) for s in ("asd", "æsd", "a.s.d", "a s d", "əsd")])
+            lol_increment = sum([source.lower().count(s) for s in ("lol", "lil", "lel", "læl", "lael", "ləl")])
 
         if 0 < (asd_increment + lol_increment) <= 20:
             try:
